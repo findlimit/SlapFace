@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, SlapFaceActivity!</string>
+    <string name="app_name">SlapFace</string>
+    <string name="wait_for_host">Wait for Host.</string>
+    <string name="connectfail">Connection Fail</string>
+    <string name="pleasereconnect">Please try again later.</string>
+
+</resources>
