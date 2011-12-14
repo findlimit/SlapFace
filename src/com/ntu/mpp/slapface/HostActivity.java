@@ -1,7 +1,6 @@
 package com.ntu.mpp.slapface;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import android.app.Activity;
@@ -17,7 +16,6 @@ import android.widget.TextView;
 public class HostActivity extends Activity {
 	
 	public static ServerAgent mServerAgent;
-	private int sId = 0;
 	
 	private Thread socketListener_t;
 	Handler mHandler = new Handler() {
@@ -51,36 +49,6 @@ public class HostActivity extends Activity {
 //						Toast.LENGTH_SHORT).show();
 				// HostActivity.this.setTitle(HostActivity.this.getTitle()
 				// + " " + (mServerAgent.clientCount + 1));
-				readThread = new Thread() {// 從server讀字串的thread
-					String tmp = "";
-
-					@Override
-					public void run() {
-						while (flagReadThread) {
-							try {
-								tmp = mServerAgent.readFromId(sId);
-								// TODO: Switch case of tmp
-								if (tmp == null) {
-									tmp = "";
-									Log.e("null", "null");
-								} else {
-									runOnUiThread(new Runnable() {
-										@Override
-										public void run() {
-											tvMsg.setText(tmp);
-											Log.d("Peter", tmp);
-										}
-									});
-								}
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-						}
-						mServerAgent.end(sId);
-					}
-				};
-				readThread.start();
 				break;
 			case C.ADD_INPUT:
 				mServerAgent.addInput((BufferedReader) msg.obj);
