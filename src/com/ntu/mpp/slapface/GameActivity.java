@@ -29,28 +29,15 @@ import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 public class GameActivity extends Activity implements SurfaceHolder.Callback, Camera.PreviewCallback, SensorEventListener{
 	private final String tag = getClass().getName();
 
-	// For face detection==========
-	private Camera myCamera;
-	private SurfaceView previewSurfaceView;
-	private SurfaceHolder previewSurfaceHolder;
-	private boolean previewing = false;
-	private TextView detect;
 
-	private Bitmap bitmapPicture;
-	private boolean doingBoolean = false;
-	private static int widthP;
-	private static int heightP;
-
-	private int imageWidth, imageHeight;
-	private FaceDetector myFaceDetect;
-	private FaceDetector.Face[] faceDetected;
-	private final int numberOfFace = 1;
-	private int numberOfFaceDetected;
-	// For face detection==========
+	
 	
 
 	Handler mHandler = new Handler() {
@@ -74,11 +61,38 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	private Thread readThread;
 	private boolean host;
+	boolean isHost;//True: Host, False: client.
+	boolean adState;//True: Attacker, False: Defender.
+	boolean isAttacking;//True: had attacked, now wait for response
+	private int myHp;
+	private int enemyHp;
+	private SocketAgent mAgent;
+
+	// For face detection==========
+	private Camera myCamera;
+	private SurfaceView previewSurfaceView;
+	private SurfaceHolder previewSurfaceHolder;
+	private boolean previewing = false;
+	private TextView detect;
+
+	private Bitmap bitmapPicture;
+	private boolean doingBoolean = false;
+	private static int widthP;
+	private static int heightP;
+
+	private int imageWidth, imageHeight;
+	private FaceDetector myFaceDetect;
+	private FaceDetector.Face[] faceDetected;
+	private final int numberOfFace = 1;
+	private int numberOfFaceDetected;
+	// For face detection==========
+
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		init();
 		// For Full screen
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -98,26 +112,18 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		previewSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		detect = (TextView) findViewById(R.id.detectHint);
-=======
-	
-	boolean isHost;//True: Host, False: client.
-	boolean adState;//True: Attacker, False: Defender.
-	boolean isAttacking;//True: had attacked, now wait for response
-	private int myHp;
-	private int enemyHp;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		init();
-	}
 	
 	private void init() {
 		host = getIntent().getBooleanExtra("host", true);
-		readThread = new Thread(new ReadThread(host, mHandler));
+		if (host)
+			mAgent = HostActivity.mServerAgent;
+		else
+			mAgent = ClientActivity.mClientAgent;
+		readThread = new Thread(new ReadThread(host, mAgent, mHandler));
 		readThread.start();
-		host = getIntent().getBooleanExtra("host", true);
-		init(host);
+		isAttacking=false;
+		myHp=100;
+		enemyHp=100;
 		
 		SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
@@ -125,20 +131,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
         	sensorManager.registerListener(this, sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
         }
 	}
-
-	private void init(boolean host) {
-		if (host){
-			readThread = new Thread(new HostReadThread(mHandler));
-			isHost=true;
-			adState=true;
-		}else{
-			readThread = new Thread(new ClientReadThread(mHandler));
-		readThread.start();
-		isAttacking=false;
-		myHp=100;
-		enemyHp=100;
-
-	}	
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
