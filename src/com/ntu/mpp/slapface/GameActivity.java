@@ -27,5 +27,6 @@ public class GameActivity extends Activity {
 	private void init() {
 		host = getIntent().getBooleanExtra("host", true);
 		readThread = new Thread(new ReadThread(host, mHandler));
+		readThread.start();
 	}
 }
