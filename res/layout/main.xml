@@ -21,6 +21,12 @@
         android:layout_height="wrap_content"
         android:text="Client" />
 
+    <Button
+        android:id="@+id/faceTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FaceTest" />
+
     <ListView
         android:id="@+id/lvWifi"
         android:layout_width="match_parent"

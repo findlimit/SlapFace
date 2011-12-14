@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
 	private ListView lvWifi;
 	private Button btnHost;
 	private Button btnClient;
-	
+	private Button faceButton;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +67,16 @@ public class MainActivity extends Activity {
     	
     	btnHost = (Button) findViewById(R.id.btnHost);
     	btnHost.setOnClickListener(mBtnHostOnClick);
+    	faceButton=(Button)findViewById(R.id.faceTest);
+    	faceButton.setOnClickListener(new Button.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent intent = new Intent(MainActivity.this, GameActivity.class);
+				startActivity(intent);
+			}
+		});
     	
     	btnClient = (Button) findViewById(R.id.btnClient);
     	btnClient.setOnClickListener(mBtnClientOnClick);
