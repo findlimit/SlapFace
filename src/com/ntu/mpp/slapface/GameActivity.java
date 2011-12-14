@@ -112,6 +112,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		previewSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		detect = (TextView) findViewById(R.id.detectHint);
+	}
 	
 	private void init() {
 		host = getIntent().getBooleanExtra("host", true);
