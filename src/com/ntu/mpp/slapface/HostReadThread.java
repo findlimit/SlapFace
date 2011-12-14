@@ -2,6 +2,7 @@ package com.ntu.mpp.slapface;
 
 import java.io.IOException;
 
+import android.os.Handler;
 import android.util.Log;
 
 public class HostReadThread implements Runnable{
@@ -9,6 +10,11 @@ public class HostReadThread implements Runnable{
 	private String tmp;
 	private ServerAgent mServerAgent = HostActivity.mServerAgent;
 	boolean flagReadThread = true;
+	private Handler mHandler;
+
+	public HostReadThread(Handler handler) {
+		mHandler = handler;
+	}
 
 	@Override
 	public void run() {

@@ -98,8 +98,8 @@ public class HostActivity extends Activity {
 		
 		@Override
 		public void onClick(View v) {
-			mServerAgent.writeAll("lala");
-			tvMsg.setText("lala");
+			mServerAgent.writeAll("start");
+			tvMsg.setText("start");
 		}
 	};
 }

@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -42,28 +43,18 @@ public class ClientActivity extends Activity {
 
 					@Override
 					public void run() {
-						while (flagReadThread) {
-							try {
-								tmp = mClientAgent.read();
-								if (tmp == null) {
-									tmp = "";
-									Log.e("null", "null");
-								} else {
-									runOnUiThread(new Runnable() {
-										
-										@Override
-										public void run() {
-											tvClientMsg.setText(tmp);
-											Log.d("Peter", tmp);
-										}
-									});
-								}
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
+						try {
+							tmp = mClientAgent.read();
+							if (tmp.equals(tmp)) {
+								Intent intent = new Intent(ClientActivity.this, GameActivity.class);
+								intent.putExtra("host", false);
+								ClientActivity.this.startActivity(intent);
+								ClientActivity.this.finish();
 							}
+						} catch (IOException e) {
+							mHandler.sendMessage(mHandler.obtainMessage(C.SOCKET_FAILED));
+							e.printStackTrace();
 						}
-						mClientAgent.end();
 					}
 				};
 				readThread.start();
