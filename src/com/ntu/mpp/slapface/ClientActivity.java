@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 public class ClientActivity extends Activity {
 	
-	private ClientAgent mClientAgent;
+	public static ClientAgent mClientAgent;
 	Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {

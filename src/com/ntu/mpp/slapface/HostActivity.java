@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 public class HostActivity extends Activity {
 	
-	static ServerAgent mServerAgent;
+	public static ServerAgent mServerAgent;
 	private int sId = 0;
 	
 	private Thread socketListener_t;
@@ -59,6 +59,7 @@ public class HostActivity extends Activity {
 						while (flagReadThread) {
 							try {
 								tmp = mServerAgent.readFromId(sId);
+								// TODO: Switch case of tmp
 								if (tmp == null) {
 									tmp = "";
 									Log.e("null", "null");
