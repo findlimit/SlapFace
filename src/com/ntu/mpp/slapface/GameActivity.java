@@ -21,16 +21,11 @@ public class GameActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		host = getIntent().getBooleanExtra("host", true);
-		init(host);
+		init();
 	}
 	
-	private void init(boolean host) {
-		if (host)
-			readThread = new Thread(new HostReadThread(mHandler));
-		else
-			readThread = new Thread(new ClientReadThread(mHandler));
-		readThread.start();
-		
+	private void init() {
+		host = getIntent().getBooleanExtra("host", true);
+		readThread = new Thread(new ReadThread(host, mHandler));
 	}
 }

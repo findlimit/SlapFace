@@ -5,22 +5,26 @@ import java.io.IOException;
 import android.os.Handler;
 import android.util.Log;
 
-public class HostReadThread implements Runnable{
+public class ReadThread implements Runnable{
 
 	private String tmp;
-	private ServerAgent mServerAgent = HostActivity.mServerAgent;
+	private SocketAgent mAgent;
 	boolean flagReadThread = true;
 	private Handler mHandler;
 
-	public HostReadThread(Handler handler) {
+	public ReadThread(boolean host, Handler handler) {
 		mHandler = handler;
+		if (host)
+			mAgent = HostActivity.mServerAgent;
+		else
+			mAgent = ClientActivity.mClientAgent;
 	}
 
 	@Override
 	public void run() {
 		while (flagReadThread) {
 			try {
-				tmp = mServerAgent.readFromId(0);
+				tmp = mAgent.read();
 				// TODO Switch case of input string.
 				if (tmp == null) {
 					tmp = "";
@@ -33,7 +37,7 @@ public class HostReadThread implements Runnable{
 				e1.printStackTrace();
 			}
 		}
-		mServerAgent.end(0);
+		mAgent.end();
 	}
 
 }
