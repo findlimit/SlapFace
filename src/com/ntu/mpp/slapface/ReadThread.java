@@ -9,15 +9,14 @@ public class ReadThread implements Runnable{
 
 	private String tmp;
 	private SocketAgent mAgent;
-	boolean flagReadThread = true;
+	private boolean flagReadThread = true;
 	private Handler mHandler;
+	private boolean mBoolHost;
 
-	public ReadThread(boolean host, Handler handler) {
+	public ReadThread(boolean host, SocketAgent agent, Handler handler) {
 		mHandler = handler;
-		if (host)
-			mAgent = HostActivity.mServerAgent;
-		else
-			mAgent = ClientActivity.mClientAgent;
+		mBoolHost = host;
+		mAgent = agent;
 	}
 
 	@Override
@@ -30,7 +29,7 @@ public class ReadThread implements Runnable{
 					tmp = "";
 					Log.e("null", "null");
 				} else {
-					
+					Log.d("Peter", String.valueOf(mBoolHost)+"/"+tmp);
 				}
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block

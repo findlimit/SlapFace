@@ -38,18 +38,21 @@ public class ClientActivity extends Activity {
 //				dia_join.setMessage(ClientActivity.this.getResources()
 //						.getString(R.string.waitforhost));
 				dia_join.dismiss();
-				readThread = new Thread() {// 從server讀字串的thread
+				readThread = new Thread() {// Read "start" string from server.
 					String tmp = "";
 
 					@Override
 					public void run() {
 						try {
-							tmp = mClientAgent.read();
-							if (tmp.equals(tmp)) {
-								Intent intent = new Intent(ClientActivity.this, GameActivity.class);
-								intent.putExtra("host", false);
-								ClientActivity.this.startActivity(intent);
-								ClientActivity.this.finish();
+							while (true) {
+								tmp = mClientAgent.read();
+								if (tmp.equals("start")) {
+									Intent intent = new Intent(ClientActivity.this, GameActivity.class);
+									intent.putExtra("host", false);
+									ClientActivity.this.startActivity(intent);
+									ClientActivity.this.finish();
+									break;
+								}
 							}
 						} catch (IOException e) {
 							mHandler.sendMessage(mHandler.obtainMessage(C.SOCKET_FAILED));

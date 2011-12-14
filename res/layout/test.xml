@@ -5,15 +5,15 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/tvHostMsg"
+        android:id="@+id/tvTestMsg"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/hello" />
 
     <Button
-        android:id="@+id/btnHostStart"
+        android:id="@+id/btnTestSend"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start" />
+        android:text="Send" />
 
 </LinearLayout>

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -49,6 +50,8 @@ public class HostActivity extends Activity {
 //						Toast.LENGTH_SHORT).show();
 				// HostActivity.this.setTitle(HostActivity.this.getTitle()
 				// + " " + (mServerAgent.clientCount + 1));
+				Log.d("Peter", "ready");
+				tvMsg.setText("ready");
 				break;
 			case C.ADD_INPUT:
 				mServerAgent.addInput((BufferedReader) msg.obj);
@@ -62,7 +65,7 @@ public class HostActivity extends Activity {
 
 	boolean flagReadThread = true;
 	private TextView tvMsg;
-	private Button btnSend;
+	private Button btnStart;
 	Thread readThread;
 
 	@Override
@@ -71,8 +74,8 @@ public class HostActivity extends Activity {
 		setContentView(R.layout.host);
 		
 		tvMsg = (TextView) findViewById(R.id.tvHostMsg);
-		btnSend = (Button) findViewById(R.id.btnHostSend);
-		btnSend.setOnClickListener(mBtnSendOnClick);
+		btnStart = (Button) findViewById(R.id.btnHostStart);
+		btnStart.setOnClickListener(mBtnStartOnClick);
 		mServerAgent = new ServerAgent();
 		openServerConnection();
 	}
@@ -94,12 +97,16 @@ public class HostActivity extends Activity {
 		Log.i(C.TAG, "-createServer()");
 	}
 	
-	private OnClickListener mBtnSendOnClick = new OnClickListener() {
+	private OnClickListener mBtnStartOnClick = new OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
 			mServerAgent.writeAll("start");
 			tvMsg.setText("start");
+			Intent intent = new Intent(HostActivity.this, GameActivity.class);
+			intent.putExtra("host", true);
+			startActivity(intent);
+			finish();
 		}
 	};
 }
