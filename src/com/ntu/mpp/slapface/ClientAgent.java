@@ -11,7 +11,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-public class ClientAgent {
+public class ClientAgent implements SocketAgent{
 
 	Socket socket;
 	BufferedReader input;

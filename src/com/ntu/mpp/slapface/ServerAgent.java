@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class ServerAgent {
+public class ServerAgent implements SocketAgent{
 	// ServerSocket socket;
 	ArrayList<BufferedReader> inputList;
 	ArrayList<PrintWriter> outputList;
@@ -50,7 +50,7 @@ public class ServerAgent {
 		clientCount = 0;
 	}
 
-	public boolean end(int cId) {
+	public void end(int cId) {
 		if (cId < inputList.size()) {
 			try {
 				inputList.get(cId).close();
@@ -62,6 +62,20 @@ public class ServerAgent {
 		if (cId < outputList.size()) {
 			outputList.get(cId).close();
 		}
-		return true;
+	}
+
+	@Override
+	public void write(String str) {
+		writeToId(str, 0);
+	}
+
+	@Override
+	public String read() throws IOException {
+		return readFromId(0);
+	}
+
+	@Override
+	public void end() {
+		end(0);
 	}
 }
