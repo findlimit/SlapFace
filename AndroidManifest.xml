@@ -27,6 +27,15 @@
             android:name=".GameActivity"
             android:screenOrientation="portrait" >
         </activity>
+        
+        <activity android:name="com.farproc.wifi.connecter.MainActivity"
+    		android:theme="@android:style/Theme.Dialog" 
+    		android:launchMode="singleInstance" 
+    		android:excludeFromRecents="true" 
+    		android:noHistory="true">
+    	</activity>
+    
+		<service android:name="ReenableAllApsWhenNetworkStateChanged$BackgroundService"/>
     </application>
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />

@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/18/trunk/src/com/farproc/wifi/connecter
+END
+MainActivity.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/10/trunk/src/com/farproc/wifi/connecter/MainActivity.java
+END
+ReenableAllApsWhenNetworkStateChanged.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/!svn/ver/12/trunk/src/com/farproc/wifi/connecter/ReenableAllApsWhenNetworkStateChanged.java
+END
+ChangePasswordContent.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/2/trunk/src/com/farproc/wifi/connecter/ChangePasswordContent.java
+END
+Floating.java
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/2/trunk/src/com/farproc/wifi/connecter/Floating.java
+END
+TestWifiScan.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/18/trunk/src/com/farproc/wifi/connecter/TestWifiScan.java
+END
+BaseContent.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/2/trunk/src/com/farproc/wifi/connecter/BaseContent.java
+END
+CurrentNetworkContent.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/2/trunk/src/com/farproc/wifi/connecter/CurrentNetworkContent.java
+END
+MyApplication.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/2/trunk/src/com/farproc/wifi/connecter/MyApplication.java
+END
+ChangingAwareEditText.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/2/trunk/src/com/farproc/wifi/connecter/ChangingAwareEditText.java
+END
+ConfiguredNetworkContent.java
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/2/trunk/src/com/farproc/wifi/connecter/ConfiguredNetworkContent.java
+END
+Wifi.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/13/trunk/src/com/farproc/wifi/connecter/Wifi.java
+END
+NewNetworkContent.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/2/trunk/src/com/farproc/wifi/connecter/NewNetworkContent.java
+END
