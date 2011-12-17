@@ -87,7 +87,7 @@ public class MainActivity extends Floating {
 			if(config.status == WifiConfiguration.Status.CURRENT
 					&& info != null
 					&& info.getSSID() != null) {
-			mContent = new CurrentNetworkContent(this, mWifiManager, mScanResult);
+				mContent = new CurrentNetworkContent(this, mWifiManager, mScanResult);
 			} else {
 				mContent = new ConfiguredNetworkContent(this, mWifiManager, mScanResult);
 			}
