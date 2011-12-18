@@ -293,16 +293,15 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		// }
 		// doingBoolean = false;
 		// }
-		if (!doingBoolean) {
-			frameData = data;
-		}
 
+			frameData = data;
+	
 	}
 
 	private void faceDetection() {
 		while (true) {
 
-			if (!doingBoolean) {
+			if (!doingBoolean && frameData != null) {
 				doingBoolean = true;
 				source = new PlanarYUVLuminanceSource(frameData, widthP, heightP, 0, 0, widthP, heightP, true);
 				tmp = source.renderCroppedGreyscaleBitmap();
@@ -330,12 +329,14 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				numberOfFaceDetected = myFaceDetect.findFaces(bitmapPicture, faceDetected);
 
 				if (numberOfFaceDetected > 0) {
-					//detect.setText("true");
-					//detect.setBackgroundColor(Color.GREEN);
+					// detect.setText("true");
+					// detect.setBackgroundColor(Color.GREEN);
+					mHandler.sendEmptyMessage(1000);
 					// Log.e(tag, "detected");
 				} else {
-				//	detect.setText("false");
-				//	detect.setBackgroundColor(Color.RED);
+					// detect.setText("false");
+					// detect.setBackgroundColor(Color.RED);
+					mHandler.sendEmptyMessage(2000);
 					// Log.e(tag, "not detected");
 				}
 				doingBoolean = false;
@@ -358,7 +359,17 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				myHpBar.setProgress(myHpBar.getProgress() - 10);
 
 				break;
+			case 1000:
+				detect.setText("true");
+				detect.setBackgroundColor(Color.GREEN);
+				Log.e(tag, "detect");
+				break;
 
+			case 2000:
+				detect.setText("false");
+				detect.setBackgroundColor(Color.RED);
+				Log.e(tag, "not detect");
+				break;
 			default:
 				break;
 			}
