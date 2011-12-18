@@ -30,7 +30,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class GameActivity extends Activity implements SurfaceHolder.Callback, Camera.PreviewCallback, SensorEventListener {
-	private final String tag = getClass().getName();
+
+	private final String tag = getClass().getName();// For Log usage
 
 	private Thread readThread;
 	private Thread gameThread;
@@ -63,7 +64,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		init();
+
 		// For Full screen
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -76,6 +79,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	}
 
 	private void gameStart() {
+		// runOnUiThread(action) ??
+
 		gameThread = new Thread(new Runnable() {
 
 			@Override
@@ -92,13 +97,11 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	}
 
-	protected void attackState() {
-		
+	private void attackState() {
 
 	}
 
-	protected void defendState() {
-		
+	private void defendState() {
 
 	}
 
@@ -136,7 +139,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	// Face detection part==========↓
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-	
+
 		Size size = myCamera.getParameters().getPreviewSize();
 
 		widthP = size.width;
@@ -159,7 +162,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-	
+
 		if (myCamera == null) {
 			myCamera = Camera.open(getFrontCameraId());
 		}
@@ -178,7 +181,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-	
+
 		myCamera.setPreviewCallback(null);
 		myCamera.stopPreview();
 		myCamera.release();
@@ -189,7 +192,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
-		
+
 		// bitmapPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
 
 		if (!doingBoolean) {
@@ -242,25 +245,34 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			super.handleMessage(msg);
 			// test.setText(msg.obj.toString());
 
+			switch (msg.what) {
+			case 0:
+
+				break;
+
+			default:
+				break;
+			}
+
 		}
 	};
 
+	public double getAccelerate(float x, float y, float z) {// Calculate
+		// Accelerate
+		return Math.sqrt(x * x + y * y + z * z);
+	}
+
 	@Override
 	public void onSensorChanged(SensorEvent event) {// Use to Attack
-		
+
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 			accelerate = getAccelerate(event.values[0], event.values[1], event.values[2]);
 
 		}
 	}
 
-	public double getAccelerate(float x, float y, float z) {// Calculate
-															// Accelerate
-		return Math.sqrt(x * x + y * y + z * z);
-	}
-
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
-		
+
 	}
 }
