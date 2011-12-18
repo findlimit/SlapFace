@@ -29,7 +29,6 @@ import android.widget.Button;
 
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -294,8 +293,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		// doingBoolean = false;
 		// }
 
-			frameData = data;
-	
+		frameData = data;
+
 	}
 
 	private void faceDetection() {
