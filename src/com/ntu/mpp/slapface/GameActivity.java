@@ -33,13 +33,14 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private final String tag = getClass().getName();
 
 	private Thread readThread;
+	private Thread gameThread;
 	private Boolean host;
 	private SocketAgent mAgent;
 	private ProgressBar myHpBar;
 	private ProgressBar enemyHpBar;
 	private Double accelerate;
 
-	// For face detection==========
+	// For face detection==========↓
 	private Camera myCamera;
 	private SurfaceView previewSurfaceView;
 	private SurfaceHolder previewSurfaceHolder;
@@ -54,10 +55,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private int imageWidth, imageHeight;
 	private FaceDetector myFaceDetect;
 	private FaceDetector.Face[] faceDetected;
-	private final int numberOfFace = 1;
+	private final int numberOfFace = 1;// Just detect one face
 	private int numberOfFaceDetected;
 
-	// For face detection==========
+	// For face detection==========↑
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +70,35 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 		setContentView(R.layout.gameview);
 		findViews();
+
+		gameStart();
+
+	}
+
+	private void gameStart() {
+		gameThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				if (host) {// Not handle sync problem
+					attackState();
+				} else {
+					defendState();
+				}
+			}
+
+		});
+		gameThread.start();
+
+	}
+
+	protected void attackState() {
+		
+
+	}
+
+	protected void defendState() {
+		
 
 	}
 
@@ -92,7 +122,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		} else {
 			mAgent = ClientActivity.mClientAgent;
 		}
-		
+
 		readThread = new Thread(new ReadThread(host, mAgent, mHandler));
 		readThread.start();
 
@@ -103,9 +133,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		}
 	}
 
+	// Face detection part==========↓
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-		// TODO Auto-generated method stub
+	
 		Size size = myCamera.getParameters().getPreviewSize();
 
 		widthP = size.width;
@@ -122,14 +153,13 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			myCamera.setPreviewCallback(this);
 			previewing = true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
+	
 		if (myCamera == null) {
 			myCamera = Camera.open(getFrontCameraId());
 		}
@@ -148,7 +178,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
+	
 		myCamera.setPreviewCallback(null);
 		myCamera.stopPreview();
 		myCamera.release();
@@ -159,7 +189,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
-		// TODO Auto-generated method stub
+		
 		// bitmapPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
 
 		if (!doingBoolean) {
@@ -203,10 +233,12 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	}
 
+	// Face detection part==========↑
+
 	Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			// TODO Auto-generated method stub
+
 			super.handleMessage(msg);
 			// test.setText(msg.obj.toString());
 
@@ -215,7 +247,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {// Use to Attack
-		// TODO Auto-generated method stub
+		
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 			accelerate = getAccelerate(event.values[0], event.values[1], event.values[2]);
 
@@ -229,6 +261,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
-		// TODO Auto-generated method stub
+		
 	}
 }
