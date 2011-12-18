@@ -33,25 +33,21 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private final String tag = getClass().getName();
 
 	private Thread readThread;
-	private boolean host;
-	boolean isHost;// True: Host, False: client.
-	boolean adState;// True: Attacker, False: Defender.
-	boolean isAttacking;// True: had attacked, now wait for response
-	private int myHp;
-	private int enemyHp;
+	private Boolean host;
 	private SocketAgent mAgent;
 	private ProgressBar myHpBar;
 	private ProgressBar enemyHpBar;
+	private Double accelerate;
 
 	// For face detection==========
 	private Camera myCamera;
 	private SurfaceView previewSurfaceView;
 	private SurfaceHolder previewSurfaceHolder;
-	private boolean previewing = false;
+	private Boolean previewing = false;
 	private TextView detect;
 
 	private Bitmap bitmapPicture;
-	private boolean doingBoolean = false;
+	private Boolean doingBoolean = false;
 	private static int widthP;
 	private static int heightP;
 
@@ -74,8 +70,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		setContentView(R.layout.gameview);
 		findViews();
 
-		// host = getIntent().getBooleanExtra("host", true);
-		// init(host);
 	}
 
 	private void findViews() {
@@ -86,9 +80,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		previewSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		detect = (TextView) findViewById(R.id.detectHint);
-		
-		myHpBar=(ProgressBar)findViewById(R.id.myHpBar);
-		myHpBar=(ProgressBar)findViewById(R.id.enemyHpBar);
+
+		myHpBar = (ProgressBar) findViewById(R.id.myHpBar);
+		myHpBar = (ProgressBar) findViewById(R.id.enemyHpBar);
 	}
 
 	private void init() {
@@ -98,11 +92,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		} else {
 			mAgent = ClientActivity.mClientAgent;
 		}
+		
 		readThread = new Thread(new ReadThread(host, mAgent, mHandler));
 		readThread.start();
-		isAttacking = false;
-		myHp = 100;
-		enemyHp = 100;
 
 		SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
@@ -162,6 +154,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		myCamera.release();
 		myCamera = null;
 		previewing = false;
+
 	}
 
 	@Override
@@ -220,52 +213,18 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		}
 	};
 
-	private void reflash() {// used to reflash view
-		isAttacking = false;
-	}
-
 	@Override
 	public void onSensorChanged(SensorEvent event) {// Use to Attack
 		// TODO Auto-generated method stub
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-			double accelerate = getAccelerate(event.values[0], event.values[1], event.values[2]);
-			if (accelerate > 20 && adState == true && isAttacking == false) {
-				isAttacking = true;
-				attack(accelerate);
-			}
+			accelerate = getAccelerate(event.values[0], event.values[1], event.values[2]);
+
 		}
 	}
 
 	public double getAccelerate(float x, float y, float z) {// Calculate
 															// Accelerate
 		return Math.sqrt(x * x + y * y + z * z);
-	}
-
-	private void attack(double pow) {
-		int attackValue = (int) ((pow - 15) / 5);
-		sendMsg(1, attackValue);
-	}
-
-	private void getRespond(int eHP) {
-		enemyHp = eHP;
-		if (enemyHp <= 0) {
-			isGameOver(true);
-		} else {
-			reflash();
-			adState = true;
-			waitThreeSecond();
-		}
-	}
-
-	private void waitThreeSecond() {// used to wait three second
-	}
-
-	private void isGameOver(boolean isYouWin) {// isYouWin==true: attacker win
-	}
-
-	// ////////////////////////////////////////////////////////
-	private void sendMsg(int type, Object pow) {// TODO: Peter's work
-		// TODO Auto-generated method stub
 	}
 
 	@Override
