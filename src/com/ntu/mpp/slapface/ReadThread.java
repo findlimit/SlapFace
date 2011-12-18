@@ -32,8 +32,12 @@ public class ReadThread implements Runnable {
 						tmp = "";
 						// Log.e("null", "null");
 					} else {
-						mHandler.sendMessage(mHandler.obtainMessage(0, tmp));
-						Log.d("Peter", String.valueOf(mBoolHost) + "/" + tmp);
+
+						if (tmp.equals("ATK")) {
+							mHandler.sendMessage(mHandler.obtainMessage(0, tmp));
+							
+						}
+						Log.e("Peter", String.valueOf(mBoolHost) + "/" + tmp);
 					}
 
 				} else {

@@ -24,8 +24,12 @@ import android.os.Message;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.widget.Button;
+
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -35,11 +39,15 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	private Thread readThread;
 	private Thread gameThread;
+	private Thread faceThread;
 	private Boolean host;
 	private SocketAgent mAgent;
 	private ProgressBar myHpBar;
 	private ProgressBar enemyHpBar;
 	private Double accelerate;
+
+	private TextView testTextView;
+	private Button atkButton;
 
 	// For face detection==========↓
 	private Camera myCamera;
@@ -58,6 +66,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private FaceDetector.Face[] faceDetected;
 	private final int numberOfFace = 1;// Just detect one face
 	private int numberOfFaceDetected;
+	private byte[] frameData;
+	private PlanarYUVLuminanceSource source;
+	private Bitmap tmp;
+	private Bitmap tmp2;
 
 	// For face detection==========↑
 
@@ -79,7 +91,31 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	}
 
 	private void gameStart() {
-		// runOnUiThread(action) ??
+
+		faceThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				faceDetection();
+
+			}
+		});
+		faceThread.start();
+
+		// runOnUiThread(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// if (host) {// Not handle sync problem
+		// attackState();
+		// testTextView.setText("HOST");
+		// } else {
+		// defendState();
+		// testTextView.setText("CLIENT");
+		// }
+		// }
+		//
+		// });
 
 		gameThread = new Thread(new Runnable() {
 
@@ -87,8 +123,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			public void run() {
 				if (host) {// Not handle sync problem
 					attackState();
+					// testTextView.setText("HOST");
 				} else {
 					defendState();
+					// testTextView.setText("CLIENT");
 				}
 			}
 
@@ -98,10 +136,12 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	}
 
 	private void attackState() {
+		atkButton.setClickable(true);
 
 	}
 
 	private void defendState() {
+		atkButton.setClickable(false);
 
 	}
 
@@ -116,6 +156,19 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 		myHpBar = (ProgressBar) findViewById(R.id.myHpBar);
 		myHpBar = (ProgressBar) findViewById(R.id.enemyHpBar);
+
+		testTextView = (TextView) findViewById(R.id.textView1);
+		atkButton = (Button) findViewById(R.id.atkBtn);
+		atkButton.setOnClickListener(new Button.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				mAgent.write("ATK");
+				Log.e(tag, "Press ATK");
+			}
+		});
+		// atkButton.setClickable(false);
 	}
 
 	private void init() {
@@ -195,45 +248,99 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 		// bitmapPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
 
+		// if (!doingBoolean) {
+		// doingBoolean = true;
+		// PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(data,
+		// widthP, heightP, 0, 0, widthP, heightP, true);
+		// Bitmap tmp = source.renderCroppedGreyscaleBitmap();
+		//
+		// Matrix m = new Matrix();
+		// m.setRotate(90);
+		//
+		// BitmapFactory.Options BitmapFactoryOptionsbfo = new
+		// BitmapFactory.Options();
+		// BitmapFactoryOptionsbfo.inPreferredConfig = Bitmap.Config.RGB_565;
+		//
+		// // Need to speed up==========
+		// Bitmap tmp2 = Bitmap.createBitmap(tmp, 0, 0, tmp.getWidth(),
+		// tmp.getHeight(), m, true);
+		// bitmapPicture = Bitmap.createScaledBitmap(tmp2, (int)
+		// (tmp2.getWidth() * 0.20), (int) (tmp2.getHeight() * 0.20), true);
+		//
+		// ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		// bitmapPicture.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+		//
+		// bitmapPicture = BitmapFactory.decodeByteArray(baos.toByteArray(), 0,
+		// baos.toByteArray().length, BitmapFactoryOptionsbfo);
+		// // Need to speed up==========
+		//
+		// imageWidth = bitmapPicture.getWidth();
+		// imageHeight = bitmapPicture.getHeight();
+		// faceDetected = new FaceDetector.Face[numberOfFace];
+		// myFaceDetect = new FaceDetector(imageWidth, imageHeight,
+		// numberOfFace);
+		// numberOfFaceDetected = myFaceDetect.findFaces(bitmapPicture,
+		// faceDetected);
+		//
+		// if (numberOfFaceDetected > 0) {
+		// detect.setText("true");
+		// detect.setBackgroundColor(Color.GREEN);
+		// // Log.e(tag, "detected");
+		// } else {
+		// detect.setText("false");
+		// detect.setBackgroundColor(Color.RED);
+		// // Log.e(tag, "not detected");
+		// }
+		// doingBoolean = false;
+		// }
 		if (!doingBoolean) {
-			doingBoolean = true;
-			PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(data, widthP, heightP, 0, 0, widthP, heightP, true);
-			Bitmap tmp = source.renderCroppedGreyscaleBitmap();
-
-			Matrix m = new Matrix();
-			m.setRotate(90);
-
-			BitmapFactory.Options BitmapFactoryOptionsbfo = new BitmapFactory.Options();
-			BitmapFactoryOptionsbfo.inPreferredConfig = Bitmap.Config.RGB_565;
-
-			// Need to speed up==========
-			Bitmap tmp2 = Bitmap.createBitmap(tmp, 0, 0, tmp.getWidth(), tmp.getHeight(), m, true);
-			bitmapPicture = Bitmap.createScaledBitmap(tmp2, (int) (tmp2.getWidth() * 0.20), (int) (tmp2.getHeight() * 0.20), true);
-
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			bitmapPicture.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-
-			bitmapPicture = BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.toByteArray().length, BitmapFactoryOptionsbfo);
-			// Need to speed up==========
-
-			imageWidth = bitmapPicture.getWidth();
-			imageHeight = bitmapPicture.getHeight();
-			faceDetected = new FaceDetector.Face[numberOfFace];
-			myFaceDetect = new FaceDetector(imageWidth, imageHeight, numberOfFace);
-			numberOfFaceDetected = myFaceDetect.findFaces(bitmapPicture, faceDetected);
-
-			if (numberOfFaceDetected > 0) {
-				detect.setText("true");
-				detect.setBackgroundColor(Color.GREEN);
-				Log.e(tag, "detected");
-			} else {
-				detect.setText("false");
-				detect.setBackgroundColor(Color.RED);
-				Log.e(tag, "not detected");
-			}
-			doingBoolean = false;
+			frameData = data;
 		}
 
+	}
+
+	private void faceDetection() {
+		while (true) {
+
+			if (!doingBoolean) {
+				doingBoolean = true;
+				source = new PlanarYUVLuminanceSource(frameData, widthP, heightP, 0, 0, widthP, heightP, true);
+				tmp = source.renderCroppedGreyscaleBitmap();
+
+				Matrix m = new Matrix();
+				m.setRotate(90);
+
+				BitmapFactory.Options BitmapFactoryOptionsbfo = new BitmapFactory.Options();
+				BitmapFactoryOptionsbfo.inPreferredConfig = Bitmap.Config.RGB_565;
+
+				// Need to speed up==========
+				tmp2 = Bitmap.createBitmap(tmp, 0, 0, tmp.getWidth(), tmp.getHeight(), m, true);
+				bitmapPicture = Bitmap.createScaledBitmap(tmp2, (int) (tmp2.getWidth() * 0.20), (int) (tmp2.getHeight() * 0.20), true);
+
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				bitmapPicture.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
+				bitmapPicture = BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.toByteArray().length, BitmapFactoryOptionsbfo);
+				// Need to speed up==========
+
+				imageWidth = bitmapPicture.getWidth();
+				imageHeight = bitmapPicture.getHeight();
+				faceDetected = new FaceDetector.Face[numberOfFace];
+				myFaceDetect = new FaceDetector(imageWidth, imageHeight, numberOfFace);
+				numberOfFaceDetected = myFaceDetect.findFaces(bitmapPicture, faceDetected);
+
+				if (numberOfFaceDetected > 0) {
+					//detect.setText("true");
+					//detect.setBackgroundColor(Color.GREEN);
+					// Log.e(tag, "detected");
+				} else {
+				//	detect.setText("false");
+				//	detect.setBackgroundColor(Color.RED);
+					// Log.e(tag, "not detected");
+				}
+				doingBoolean = false;
+			}
+		}
 	}
 
 	// Face detection part==========↑
@@ -247,6 +354,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 			switch (msg.what) {
 			case 0:
+
+				myHpBar.setProgress(myHpBar.getProgress() - 10);
 
 				break;
 
