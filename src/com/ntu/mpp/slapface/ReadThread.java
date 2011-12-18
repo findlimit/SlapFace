@@ -5,7 +5,7 @@ import java.io.IOException;
 import android.os.Handler;
 import android.util.Log;
 
-public class ReadThread implements Runnable{
+public class ReadThread implements Runnable {
 
 	private String tmp;
 	private SocketAgent mAgent;
@@ -25,11 +25,12 @@ public class ReadThread implements Runnable{
 			try {
 				tmp = mAgent.read();
 				// TODO Switch case of input string.
-				if (tmp == null) {
+				if (tmp.equals(null) || tmp.equals("")) {
 					tmp = "";
-					Log.e("null", "null");
+					// Log.e("null", "null");
 				} else {
-					Log.d("Peter", String.valueOf(mBoolHost)+"/"+tmp);
+					mHandler.sendMessage(mHandler.obtainMessage(0, tmp));
+					Log.d("Peter", String.valueOf(mBoolHost) + "/" + tmp);
 				}
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block

@@ -4,22 +4,43 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <TextView
+        android:id="@+id/EnemyText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Enemy HP"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
     <ProgressBar
         android:id="@+id/enemyHpBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="100" />
 
     <SurfaceView
         android:id="@+id/facePreview"
         android:layout_width="200dp"
-        android:layout_height="300dp" android:layout_gravity="center_horizontal"/>
+        android:layout_height="300dp"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:id="@+id/YourText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Your HP"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ProgressBar
         android:id="@+id/myHpBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="100" />
 
     <LinearLayout
         android:id="@+id/linearLayout1"
@@ -27,17 +48,16 @@
         android:layout_height="wrap_content" >
 
         <TextView
+            android:id="@+id/detectHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Detect" />
+
+        <TextView
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="TextView" />
-
-        <TextView
-            android:id="@+id/detectHint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
-
     </LinearLayout>
 
 </LinearLayout>
