@@ -249,6 +249,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		// timer.schedule(task, 5 * 1000);
 	}
 
+	private void checkMissAction() {
+
+	}
+
 	private void findViews() {
 
 		previewSurfaceView = (SurfaceView) findViewById(R.id.facePreview);
