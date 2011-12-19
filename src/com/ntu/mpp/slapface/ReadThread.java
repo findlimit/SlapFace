@@ -2,6 +2,8 @@ package com.ntu.mpp.slapface;
 
 import java.io.IOException;
 
+import com.ntu.mpp.slapface.GameActivity.messageCode;
+
 import android.os.Handler;
 import android.util.Log;
 
@@ -34,7 +36,7 @@ public class ReadThread implements Runnable {
 					} else {
 
 						if (tmp.equals("ATK")) {
-							mHandler.sendMessage(mHandler.obtainMessage(0, tmp));
+							mHandler.sendMessage(mHandler.obtainMessage(messageCode.TEST, tmp));
 							
 						}
 						Log.e("Peter", String.valueOf(mBoolHost) + "/" + tmp);

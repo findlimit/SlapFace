@@ -72,6 +72,13 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	// For face detection==========↑
 
+	// Use for handler message code
+	public interface messageCode {
+		public static final int FACE_DETECT = 0;
+		public static final int FACE_NOT_DETECT = 1;
+		public static final int TEST = 1000;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -330,12 +337,12 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				if (numberOfFaceDetected > 0) {
 					// detect.setText("true");
 					// detect.setBackgroundColor(Color.GREEN);
-					mHandler.sendEmptyMessage(1000);
+					mHandler.sendEmptyMessage(messageCode.FACE_DETECT);
 					// Log.e(tag, "detected");
 				} else {
 					// detect.setText("false");
 					// detect.setBackgroundColor(Color.RED);
-					mHandler.sendEmptyMessage(2000);
+					mHandler.sendEmptyMessage(messageCode.FACE_NOT_DETECT);
 					// Log.e(tag, "not detected");
 				}
 				doingBoolean = false;
@@ -353,21 +360,21 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			// test.setText(msg.obj.toString());
 
 			switch (msg.what) {
-			case 0:
+			case messageCode.TEST:
 
 				myHpBar.setProgress(myHpBar.getProgress() - 10);
 
 				break;
-			case 1000:
+			case messageCode.FACE_DETECT:
 				detect.setText("true");
 				detect.setBackgroundColor(Color.GREEN);
-				Log.e(tag, "detect");
+				// Log.e(tag, "detect");
 				break;
 
-			case 2000:
+			case messageCode.FACE_NOT_DETECT:
 				detect.setText("false");
 				detect.setBackgroundColor(Color.RED);
-				Log.e(tag, "not detect");
+				// Log.e(tag, "not detect");
 				break;
 			default:
 				break;
