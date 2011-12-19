@@ -3,6 +3,8 @@ package com.ntu.mpp.slapface;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 
@@ -39,13 +41,20 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private Thread readThread;
 	private Thread gameThread;
 	private Thread faceThread;
+	private Thread countThread;
 	private Boolean host;
 	private SocketAgent mAgent;
 	private ProgressBar myHpBar;
 	private ProgressBar enemyHpBar;
 	private Double accelerate;
+	private Boolean isAttackState;
+	private Boolean isDefendState;
+	private Boolean isMissTimeState;
+	private int missChance;
+	private Boolean isDetect;
 
 	private TextView testTextView;
+	private TextView testTextView2;
 	private Button atkButton;
 
 	// For face detection==========↓
@@ -71,13 +80,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private Bitmap tmp2;
 
 	// For face detection==========↑
-
-	// Use for handler message code
-	public interface messageCode {
-		public static final int FACE_DETECT = 0;
-		public static final int FACE_NOT_DETECT = 1;
-		public static final int TEST = 1000;
-	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -123,32 +125,128 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		//
 		// });
 
-		gameThread = new Thread(new Runnable() {
+		// gameThread = new Thread(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		if (host) {// Not handle sync problem
+			attackState();
+			// testTextView.setText("HOST");
+		} else {
+			defendState();
+			// testTextView.setText("CLIENT");
+		}
+		// }
+		//
+		// });
+		// gameThread.start();
 
-			@Override
-			public void run() {
-				if (host) {// Not handle sync problem
-					attackState();
-					// testTextView.setText("HOST");
-				} else {
-					defendState();
-					// testTextView.setText("CLIENT");
-				}
-			}
-
-		});
-		gameThread.start();
+		// Game start (do sync)
 
 	}
 
 	private void attackState() {
+		isAttackState = true;
+		isDefendState = false;
 		atkButton.setClickable(true);
 
 	}
 
 	private void defendState() {
+		isDefendState = true;
+		isAttackState = false;
 		atkButton.setClickable(false);
+		isMissTimeState = false;
+		missChance = 1;
 
+	}
+
+	private void missTimeStateCountdown() {
+		isMissTimeState = true;
+		testTextView2.setText("True");
+
+		// Now miss time is 1.5 s
+		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_OVER, 1500);
+
+		// runOnUiThread(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// countThread = new Thread(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// try {
+		// Thread.sleep(1500);
+		// } catch (InterruptedException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// isMissTimeState = false;
+		// testTextView2.setText("False");
+		//
+		// }
+		// });
+		// countThread.start();
+		// // isMissTimeState = false;
+		// // testTextView2.setText("False");
+		// }
+		// });
+
+		// TimerTask task = new TimerTask() {
+		//
+		// @Override
+		// public void run() {
+		// isMissTimeState = false;
+		// testTextView2.setText("False");
+		// }
+		// };
+		// Timer timer = new Timer();
+		// timer.schedule(task, 1 * 1000);
+
+		// countThread = new Thread(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// try {
+		// Thread.sleep(1500);
+		// } catch (InterruptedException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// isMissTimeState = false;
+		// //testTextView2.setText("False");
+		//
+		// }
+		// });
+		// countThread.start();
+
+		// TimerTask task = new TimerTask() {
+		// @Override
+		// public void run() {
+		// Thread tt = new Thread(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// // TODO Auto-generated method stub
+		// Log.e(tag, "10S");
+		// while (true) {
+		// Log.e(tag, "10S");
+		// try {
+		// Thread.sleep(500);
+		// } catch (InterruptedException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// }
+		// }
+		// });
+		// tt.start();
+		//
+		// }
+		// };
+		// Timer timer = new Timer();
+		// timer.schedule(task, 5 * 1000);
 	}
 
 	private void findViews() {
@@ -161,20 +259,29 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		detect = (TextView) findViewById(R.id.detectHint);
 
 		myHpBar = (ProgressBar) findViewById(R.id.myHpBar);
-		myHpBar = (ProgressBar) findViewById(R.id.enemyHpBar);
+		enemyHpBar = (ProgressBar) findViewById(R.id.enemyHpBar);
 
 		testTextView = (TextView) findViewById(R.id.textView1);
+		testTextView2 = (TextView) findViewById(R.id.textView2);
 		atkButton = (Button) findViewById(R.id.atkBtn);
 		atkButton.setOnClickListener(new Button.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				mAgent.write("ATK");
-				Log.e(tag, "Press ATK");
+
+				if (isAttackState) {
+					mAgent.write("ATK");
+					defendState();
+					Log.e(tag, "Press ATK");
+				}
+
 			}
 		});
-		// atkButton.setClickable(false);
+	}
+
+	private void gameOver(Boolean isWinner) {
+
 	}
 
 	private void init() {
@@ -352,6 +459,14 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	// Face detection part==========↑
 
+	// Use for handler message code
+	public interface messageCode {
+		public static final int FACE_DETECT = 0;
+		public static final int FACE_NOT_DETECT = 1;
+		public static final int COUNTDOWN_OVER = 2;
+		public static final int ATK = 1000;
+	}
+
 	Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -360,21 +475,32 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			// test.setText(msg.obj.toString());
 
 			switch (msg.what) {
-			case messageCode.TEST:
+			case messageCode.ATK:
+				if (isDefendState) {
+					// Countdown miss time
+					missTimeStateCountdown();
 
-				myHpBar.setProgress(myHpBar.getProgress() - 10);
+					myHpBar.setProgress(myHpBar.getProgress() - 10);
+					attackState();// For test should do after return self HP
+				}
 
 				break;
 			case messageCode.FACE_DETECT:
+				isDetect = true;
 				detect.setText("true");
 				detect.setBackgroundColor(Color.GREEN);
 				// Log.e(tag, "detect");
 				break;
 
 			case messageCode.FACE_NOT_DETECT:
+				isDetect = false;
 				detect.setText("false");
 				detect.setBackgroundColor(Color.RED);
 				// Log.e(tag, "not detect");
+				break;
+			case messageCode.COUNTDOWN_OVER:
+				isMissTimeState = false;
+				testTextView2.setText("False");
 				break;
 			default:
 				break;
@@ -383,17 +509,22 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		}
 	};
 
-	public double getAccelerate(float x, float y, float z) {// Calculate
-		// Accelerate
+	public double getAccelerate(float x, float y, float z) {
+		// Calculate Accelerate
 		return Math.sqrt(x * x + y * y + z * z);
 	}
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {// Use to Attack
 
-		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && isAttackState) {
 			accelerate = getAccelerate(event.values[0], event.values[1], event.values[2]);
-
+			testTextView.setText(" " + accelerate);
+			if (accelerate >= 33) {
+				mAgent.write("ATK");
+				defendState();
+				Log.e(tag, "ATK");
+			}
 		}
 	}
 
