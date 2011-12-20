@@ -55,6 +55,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	private TextView testTextView;
 	private TextView testTextView2;
+	private TextView testTextView3;
 	private Button atkButton;
 
 	// For face detection==========↓
@@ -146,6 +147,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	}
 
 	private void attackState() {
+		testTextView3.setBackgroundColor(Color.RED);
 		isAttackState = true;
 		isDefendState = false;
 		atkButton.setClickable(true);
@@ -153,6 +155,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	}
 
 	private void defendState() {
+		testTextView3.setBackgroundColor(Color.RED);
 		isDefendState = true;
 		isAttackState = false;
 		atkButton.setClickable(false);
@@ -161,96 +164,13 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	}
 
-	private void missTimeStateCountdown() {
-		isMissTimeState = true;
-		testTextView2.setText("True");
-
-		// Now miss time is 1.5 s
-		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_OVER, 1500);
-
-		// runOnUiThread(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// countThread = new Thread(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// try {
-		// Thread.sleep(1500);
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// isMissTimeState = false;
-		// testTextView2.setText("False");
-		//
-		// }
-		// });
-		// countThread.start();
-		// // isMissTimeState = false;
-		// // testTextView2.setText("False");
-		// }
-		// });
-
-		// TimerTask task = new TimerTask() {
-		//
-		// @Override
-		// public void run() {
-		// isMissTimeState = false;
-		// testTextView2.setText("False");
-		// }
-		// };
-		// Timer timer = new Timer();
-		// timer.schedule(task, 1 * 1000);
-
-		// countThread = new Thread(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// try {
-		// Thread.sleep(1500);
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// isMissTimeState = false;
-		// //testTextView2.setText("False");
-		//
-		// }
-		// });
-		// countThread.start();
-
-		// TimerTask task = new TimerTask() {
-		// @Override
-		// public void run() {
-		// Thread tt = new Thread(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// // TODO Auto-generated method stub
-		// Log.e(tag, "10S");
-		// while (true) {
-		// Log.e(tag, "10S");
-		// try {
-		// Thread.sleep(500);
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// }
-		// }
-		// });
-		// tt.start();
-		//
-		// }
-		// };
-		// Timer timer = new Timer();
-		// timer.schedule(task, 5 * 1000);
-	}
-
 	private void checkMissAction() {
+		// This line should do exchange animation between attack and defend
+		mHandler.sendEmptyMessageDelayed(messageCode.MISS_START, 500);
 
+		// Countdown miss time now is 1.5s
+		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_START, 1000);
+		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_OVER, 2500);
 	}
 
 	private void findViews() {
@@ -267,6 +187,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 		testTextView = (TextView) findViewById(R.id.textView1);
 		testTextView2 = (TextView) findViewById(R.id.textView2);
+		testTextView3 = (TextView) findViewById(R.id.textView3);
 		atkButton = (Button) findViewById(R.id.atkBtn);
 		atkButton.setOnClickListener(new Button.OnClickListener() {
 
@@ -468,6 +389,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		public static final int FACE_DETECT = 0;
 		public static final int FACE_NOT_DETECT = 1;
 		public static final int COUNTDOWN_OVER = 2;
+		public static final int MISS_START = 3;
+		public static final int COUNTDOWN_START = 5;
 		public static final int ATK = 1000;
 	}
 
@@ -481,8 +404,9 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			switch (msg.what) {
 			case messageCode.ATK:
 				if (isDefendState) {
-					// Countdown miss time
-					missTimeStateCountdown();
+
+					// Ready to miss state
+					checkMissAction();
 
 					myHpBar.setProgress(myHpBar.getProgress() - 10);
 					attackState();// For test should do after return self HP
@@ -495,12 +419,18 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				detect.setBackgroundColor(Color.GREEN);
 				// Log.e(tag, "detect");
 				break;
-
 			case messageCode.FACE_NOT_DETECT:
 				isDetect = false;
 				detect.setText("false");
 				detect.setBackgroundColor(Color.RED);
 				// Log.e(tag, "not detect");
+				break;
+			case messageCode.MISS_START:
+				testTextView3.setBackgroundColor(Color.GREEN);
+				break;
+			case messageCode.COUNTDOWN_START:
+				isMissTimeState = true;
+				testTextView2.setText("True");
 				break;
 			case messageCode.COUNTDOWN_OVER:
 				isMissTimeState = false;

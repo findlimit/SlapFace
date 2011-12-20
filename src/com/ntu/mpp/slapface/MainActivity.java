@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * 
- **/ 
+ **/
 
 package com.ntu.mpp.slapface;
 
@@ -47,26 +47,26 @@ import android.widget.ListView;
 import android.widget.TwoLineListItem;
 
 public class MainActivity extends Activity {
-	
+
 	private WifiManager mWifiManager;
 	private List<ScanResult> mScanResults;
 	private ListView lvWifi;
 	private Button btnHost;
 	private Button btnClient;
 	private Button faceButton;
-	
+
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-    	super.onCreate(savedInstanceState);
-    	setContentView(R.layout.main);
-    	
-    	mWifiManager = (WifiManager)getSystemService(WIFI_SERVICE);
-    	
-    	btnHost = (Button) findViewById(R.id.btnHost);
-    	btnHost.setOnClickListener(mBtnHostOnClick);
-    	faceButton=(Button)findViewById(R.id.faceTest);
-    	faceButton.setOnClickListener(new Button.OnClickListener() {
-			
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+
+		mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+
+		btnHost = (Button) findViewById(R.id.btnHost);
+		btnHost.setOnClickListener(mBtnHostOnClick);
+		faceButton = (Button) findViewById(R.id.faceTest);
+		faceButton.setOnClickListener(new Button.OnClickListener() {
+
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
@@ -74,18 +74,18 @@ public class MainActivity extends Activity {
 				startActivity(intent);
 			}
 		});
-    	
-    	btnClient = (Button) findViewById(R.id.btnClient);
-    	btnClient.setOnClickListener(mBtnClientOnClick);
-    	
-    	lvWifi = (ListView) findViewById(R.id.lvWifi);
-    	lvWifi.setAdapter(mListAdapter);
-    	lvWifi.setOnItemClickListener(mItemOnClick);
-    	lvWifi.setVisibility(ListView.VISIBLE);
-    	
-    	Log.d("Peter", "haha");
+
+		btnClient = (Button) findViewById(R.id.btnClient);
+		btnClient.setOnClickListener(mBtnClientOnClick);
+
+		lvWifi = (ListView) findViewById(R.id.lvWifi);
+		lvWifi.setAdapter(mListAdapter);
+		lvWifi.setOnItemClickListener(mItemOnClick);
+		lvWifi.setVisibility(ListView.VISIBLE);
+
+		Log.d("Peter", "haha");
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -93,74 +93,70 @@ public class MainActivity extends Activity {
 		registerReceiver(mReceiver, filter);
 		mWifiManager.startScan();
 	}
-	
+
 	@Override
 	public void onPause() {
 		super.onPause();
 		unregisterReceiver(mReceiver);
 	}
-	
+
 	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-		
+
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			final String action = intent.getAction();
 			if (action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
 				mScanResults = mWifiManager.getScanResults();
 				mListAdapter.notifyDataSetChanged();
-				
-//				mWifiManager.startScan();
+
+				// mWifiManager.startScan();
 			}
-			
+
 		}
 	};
-	
+
 	private BaseAdapter mListAdapter = new BaseAdapter() {
-		
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			if(convertView == null || !(convertView instanceof TwoLineListItem)) {
-				convertView = View.inflate(getApplicationContext(), 
-						android.R.layout.simple_list_item_2, null);
+			if (convertView == null || !(convertView instanceof TwoLineListItem)) {
+				convertView = View.inflate(getApplicationContext(), android.R.layout.simple_list_item_2, null);
 			}
-			
+
 			final ScanResult result = mScanResults.get(position);
-			((TwoLineListItem)convertView).getText1().setText(result.SSID);
-			((TwoLineListItem)convertView).getText2().setText(
-					String.format("%s  %d", result.BSSID, result.level)
-					);
+			((TwoLineListItem) convertView).getText1().setText(result.SSID);
+			((TwoLineListItem) convertView).getText2().setText(String.format("%s  %d", result.BSSID, result.level));
 			return convertView;
 		}
-		
+
 		@Override
 		public long getItemId(int position) {
 			return position;
 		}
-		
+
 		@Override
 		public Object getItem(int position) {
 			return null;
 		}
-		
+
 		@Override
 		public int getCount() {
 			return mScanResults == null ? 0 : mScanResults.size();
 		}
 	};
-	
+
 	private OnItemClickListener mItemOnClick = new OnItemClickListener() {
 
 		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position,
-				long id) {
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			final ScanResult result = mScanResults.get(position);
 			launchWifiConnecter(MainActivity.this, result);
 			Log.d("Peter", "back");
 		}
 	};
-	
+
 	private OnClickListener mBtnHostOnClick = new OnClickListener() {
-		
+
 		@Override
 		public void onClick(View v) {
 			Intent intent = new Intent(MainActivity.this, HostActivity.class);
@@ -168,9 +164,9 @@ public class MainActivity extends Activity {
 			finish();
 		}
 	};
-	
+
 	private OnClickListener mBtnClientOnClick = new OnClickListener() {
-		
+
 		@Override
 		public void onClick(View v) {
 			Intent intent = new Intent(MainActivity.this, ClientActivity.class);
@@ -178,14 +174,16 @@ public class MainActivity extends Activity {
 			finish();
 		}
 	};
-	
+
 	/**
-	 * Try to launch Wifi Connecter with {@link #hostspot}. Prompt user to download if Wifi Connecter is not installed.
+	 * Try to launch Wifi Connecter with {@link #hostspot}. Prompt user to
+	 * download if Wifi Connecter is not installed.
+	 * 
 	 * @param activity
 	 * @param hotspot
 	 */
 	private static void launchWifiConnecter(final Activity activity, final ScanResult hotspot) {
-		final Intent intent = new Intent(activity, com.farproc.wifi.connecter.MainActivity.class);
+		final Intent intent = new Intent(activity, MainActivity.class);
 		intent.putExtra("com.farproc.wifi.connecter.extra.HOTSPOT", hotspot);
 		activity.startActivity(intent);
 	}
