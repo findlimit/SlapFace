@@ -6,8 +6,6 @@ import java.util.List;
 
 import android.app.Activity;
 
-
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -28,71 +26,47 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 
-public class GameActivity extends Activity implements SurfaceHolder.Callback, Camera.PreviewCallback, SensorEventListener{
-	private final String tag = getClass().getName();
+public class GameActivity extends Activity implements SurfaceHolder.Callback, Camera.PreviewCallback, SensorEventListener {
 
-
-	
-	
-
-	Handler mHandler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			// TODO Auto-generated method stub
-			super.handleMessage(msg);
-			
-			switch(msg.what){
-			case 1:
-				// TODO: Call defend method
-				break;
-			case 2:
-				// TODO: Run when attacker waiting for response from defender
-			default:
-				getRespond(Integer.parseInt(msg.obj.toString()));
-				break;
-			}
-		}
-	};
+	private final String tag = getClass().getName();// For Log usage
 
 	private Thread readThread;
-	private boolean host;
-	boolean isHost;//True: Host, False: client.
-	boolean adState;//True: Attacker, False: Defender.
-	boolean isAttacking;//True: had attacked, now wait for response
-	private int myHp;
-	private int enemyHp;
+	private Thread gameThread;
+	private Boolean host;
 	private SocketAgent mAgent;
+	private ProgressBar myHpBar;
+	private ProgressBar enemyHpBar;
+	private Double accelerate;
 
-	// For face detection==========
+	// For face detection==========↓
 	private Camera myCamera;
 	private SurfaceView previewSurfaceView;
 	private SurfaceHolder previewSurfaceHolder;
-	private boolean previewing = false;
+	private Boolean previewing = false;
 	private TextView detect;
 
 	private Bitmap bitmapPicture;
-	private boolean doingBoolean = false;
+	private Boolean doingBoolean = false;
 	private static int widthP;
 	private static int heightP;
 
 	private int imageWidth, imageHeight;
 	private FaceDetector myFaceDetect;
 	private FaceDetector.Face[] faceDetected;
-	private final int numberOfFace = 1;
+	private final int numberOfFace = 1;// Just detect one face
 	private int numberOfFaceDetected;
-	// For face detection==========
 
-
+	// For face detection==========↑
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		init();
+
 		// For Full screen
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -100,8 +74,35 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		setContentView(R.layout.gameview);
 		findViews();
 
-		// host = getIntent().getBooleanExtra("host", true);
-		// init(host);
+		gameStart();
+
+	}
+
+	private void gameStart() {
+		// runOnUiThread(action) ??
+
+		gameThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				if (host) {// Not handle sync problem
+					attackState();
+				} else {
+					defendState();
+				}
+			}
+
+		});
+		gameThread.start();
+
+	}
+
+	private void attackState() {
+
+	}
+
+	private void defendState() {
+
 	}
 
 	private void findViews() {
@@ -112,30 +113,33 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		previewSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		detect = (TextView) findViewById(R.id.detectHint);
-	}
-	
-	private void init() {
-		host = getIntent().getBooleanExtra("host", true);
-		if (host)
-			mAgent = HostActivity.mServerAgent;
-		else
-			mAgent = ClientActivity.mClientAgent;
-		readThread = new Thread(new ReadThread(host, mAgent, mHandler));
-		readThread.start();
-		isAttacking=false;
-		myHp=100;
-		enemyHp=100;
-		
-		SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
-        if(sensors.size()>0){
-        	sensorManager.registerListener(this, sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
-        }
+
+		myHpBar = (ProgressBar) findViewById(R.id.myHpBar);
+		myHpBar = (ProgressBar) findViewById(R.id.enemyHpBar);
 	}
 
+	private void init() {
+		host = getIntent().getBooleanExtra("host", true);
+		if (host) {
+			mAgent = HostActivity.mServerAgent;
+		} else {
+			mAgent = ClientActivity.mClientAgent;
+		}
+
+		readThread = new Thread(new ReadThread(host, mAgent, mHandler));
+		readThread.start();
+
+		SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
+		if (sensors.size() > 0) {
+			sensorManager.registerListener(this, sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
+		}
+	}
+
+	// Face detection part==========↓
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-		// TODO Auto-generated method stub
+
 		Size size = myCamera.getParameters().getPreviewSize();
 
 		widthP = size.width;
@@ -152,14 +156,13 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			myCamera.setPreviewCallback(this);
 			previewing = true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
+
 		if (myCamera == null) {
 			myCamera = Camera.open(getFrontCameraId());
 		}
@@ -178,17 +181,18 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
+
 		myCamera.setPreviewCallback(null);
 		myCamera.stopPreview();
 		myCamera.release();
 		myCamera = null;
 		previewing = false;
+
 	}
 
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera) {
-		// TODO Auto-generated method stub
+
 		// bitmapPicture = BitmapFactory.decodeByteArray(data, 0, data.length);
 
 		if (!doingBoolean) {
@@ -230,56 +234,45 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			doingBoolean = false;
 		}
 
+	}
 
-	}
-	
-	private void reflash(){//used to reflash view
-		isAttacking=false;
-	}
-	
-	@Override
-	public void onSensorChanged(SensorEvent event) {//Use to Attack
-		// TODO Auto-generated method stub
-		if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
-			double accelerate=getAccelerate(event.values[0], event.values[1], event.values[2]);
-			if(accelerate>20 && adState==true && isAttacking==false){
-				isAttacking=true;
-				attack(accelerate);
+	// Face detection part==========↑
+
+	Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+
+			super.handleMessage(msg);
+			// test.setText(msg.obj.toString());
+
+			switch (msg.what) {
+			case 0:
+
+				break;
+
+			default:
+				break;
 			}
+
 		}
-	}
-	
-	public double getAccelerate(float x, float y, float z){//Calculate Accelerate
-		return Math.sqrt(x*x + y*y + z*z);
-	}
-	
-	private void attack(double pow){
-		int attackValue=(int)((pow-15)/5);
-		sendMsg(1, attackValue);
+	};
+
+	public double getAccelerate(float x, float y, float z) {// Calculate
+		// Accelerate
+		return Math.sqrt(x * x + y * y + z * z);
 	}
 
-	private void getRespond(int eHP){
-		enemyHp=eHP;
-		if(enemyHp<=0){
-			isGameOver(true);
-		}else{
-			reflash();
-			adState=true;
-			waitThreeSecond();
+	@Override
+	public void onSensorChanged(SensorEvent event) {// Use to Attack
+
+		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+			accelerate = getAccelerate(event.values[0], event.values[1], event.values[2]);
+
 		}
-	}
-	
-	private void waitThreeSecond(){//used to wait three second
-	}
-	private void isGameOver(boolean isYouWin){//isYouWin==true: attacker win
-	}
-	//////////////////////////////////////////////////////////
-	private void sendMsg(int type, Object pow) {//TODO: Peter's work
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
-		// TODO Auto-generated method stub	
+
 	}
 }

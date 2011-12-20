@@ -5,15 +5,15 @@ import java.io.IOException;
 import android.os.Handler;
 import android.util.Log;
 
-public class ReadThread implements Runnable{
+public class ReadThread implements Runnable {
 
 	private String tmp;
 	private SocketAgent mAgent;
-	private boolean flagReadThread = true;
+	private Boolean flagReadThread = true;
 	private Handler mHandler;
-	private boolean mBoolHost;
+	private Boolean mBoolHost;
 
-	public ReadThread(boolean host, SocketAgent agent, Handler handler) {
+	public ReadThread(Boolean host, SocketAgent agent, Handler handler) {
 		mHandler = handler;
 		mBoolHost = host;
 		mAgent = agent;
@@ -23,14 +23,23 @@ public class ReadThread implements Runnable{
 	public void run() {
 		while (flagReadThread) {
 			try {
+
 				tmp = mAgent.read();
-				// TODO Switch case of input string.
-				if (tmp == null) {
-					tmp = "";
-					Log.e("null", "null");
+
+				if (tmp != null) {// To avoid close(kill) app error
+
+					if (tmp.equals(null) || tmp.equals("")) {
+						tmp = "";
+						// Log.e("null", "null");
+					} else {
+						mHandler.sendMessage(mHandler.obtainMessage(0, tmp));
+						Log.d("Peter", String.valueOf(mBoolHost) + "/" + tmp);
+					}
+
 				} else {
-					Log.d("Peter", String.valueOf(mBoolHost)+"/"+tmp);
+					flagReadThread = false;
 				}
+
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
