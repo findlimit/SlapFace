@@ -2,23 +2,33 @@ package com.ntu.mpp.slapface;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.DhcpInfo;
+import android.net.wifi.ScanResult;
+import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.TwoLineListItem;
 
 public class ClientActivity extends Activity {
 	
@@ -74,27 +84,115 @@ public class ClientActivity extends Activity {
 	boolean flagReadThread = true;
 	private ProgressDialog dia_join;
 	private TextView tvClientMsg;
-	private Button btnClientSend;
 	Thread readThread;
+	private WifiManager mWifiManager;
+	private List<ScanResult> mScanResults;
+	private ListView lvWifi;
+	boolean flagReconnect = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.client);
-		Log.d("Peter", "Client");
-		tvClientMsg = (TextView) findViewById(R.id.tvClientMsg);
-		btnClientSend = (Button) findViewById(R.id.btnClientSend);
-		btnClientSend.setOnClickListener(mBtnClientSendOnClick);
-		dia_join = new ProgressDialog(ClientActivity.this);
 		
-		Log.d("Peter", "findview over");
-		Message m = mHandler.obtainMessage(C.SHOW_MSG);
-		if (m == null)
-			Log.d("Peter", "m null");
-		mHandler.sendMessage(m);
+		mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+		
+		Log.d("Peter", "in Client");
+		lvWifi = (ListView) findViewById(R.id.lvWifi);
+    	lvWifi.setAdapter(mListAdapter);
+    	lvWifi.setOnItemClickListener(mItemOnClick);
+    	Log.d("Peter", "lv over");
+		tvClientMsg = (TextView) findViewById(R.id.tvClientMsg);
+		dia_join = new ProgressDialog(ClientActivity.this);
 		setListeners();
-		openClientConnection();
 	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		final IntentFilter filter = new IntentFilter();
+		filter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+		filter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+		registerReceiver(mReceiver, filter);
+		mWifiManager.startScan();
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		unregisterReceiver(mReceiver);
+	}
+	
+	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			final String action = intent.getAction();
+			if (action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+				mScanResults = mWifiManager.getScanResults();
+				mListAdapter.notifyDataSetChanged();
+				
+//				mWifiManager.startScan();
+			} else if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
+				SupplicantState newState = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
+				tvClientMsg.setText(newState.toString());
+				if (newState.equals(SupplicantState.DISCONNECTED)) {
+					flagReconnect = true;
+					Log.d("Peter", "disconnected");
+					Message m = mHandler.obtainMessage(C.SHOW_MSG);
+					mHandler.sendMessage(m);
+				}
+				if (flagReconnect && newState.equals(SupplicantState.COMPLETED)) {
+					flagReconnect = false;
+					Log.d("Peter", "openClient");
+					openClientConnection();
+				}
+			}
+		}
+	};
+	
+	private BaseAdapter mListAdapter = new BaseAdapter() {
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if(convertView == null || !(convertView instanceof TwoLineListItem)) {
+				convertView = View.inflate(getApplicationContext(), 
+						android.R.layout.simple_list_item_2, null);
+			}
+			
+			final ScanResult result = mScanResults.get(position);
+			((TwoLineListItem)convertView).getText1().setText(result.SSID);
+			((TwoLineListItem)convertView).getText2().setText(
+					String.format("%s  %d", result.BSSID, result.level)
+					);
+			return convertView;
+		}
+		
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+		
+		@Override
+		public Object getItem(int position) {
+			return null;
+		}
+		
+		@Override
+		public int getCount() {
+			return mScanResults == null ? 0 : mScanResults.size();
+		}
+	};
+	
+	private OnItemClickListener mItemOnClick = new OnItemClickListener() {
+
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position,
+				long id) {
+			final ScanResult result = mScanResults.get(position);
+			launchWifiConnecter(ClientActivity.this, result);
+		}
+	};
 	
 	private void setListeners() {
 
@@ -119,15 +217,6 @@ public class ClientActivity extends Activity {
 		});
 	}
 	
-	private OnClickListener mBtnClientSendOnClick = new OnClickListener() {
-		
-		@Override
-		public void onClick(View v) {
-			mClientAgent.write("yoyo");
-			tvClientMsg.setText("yoyo");
-		}
-	};
-	
 	protected void openClientConnection() {
 		Log.e(C.TAG, "+openClientConnection()");
 
@@ -140,15 +229,14 @@ public class ClientActivity extends Activity {
 		Log.v(C.TAG, C.SERVER_IP);
 
 		while (true) {
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+//			try {
+//				Thread.sleep(500);
+//			} catch (InterruptedException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
 
 			try {
-				mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
 				mDhcpInfo = mWifiManager.getDhcpInfo();
 
 				ipadd = mDhcpInfo.gateway;
@@ -170,5 +258,16 @@ public class ClientActivity extends Activity {
 
 		mClientAgent.write("");
 		Log.e(C.TAG, "-openClientConnection()");
+	}
+	
+	/**
+	 * Try to launch Wifi Connecter with {@link #hostspot}. Prompt user to download if Wifi Connecter is not installed.
+	 * @param activity
+	 * @param hotspot
+	 */
+	private static void launchWifiConnecter(final Activity activity, final ScanResult hotspot) {
+		final Intent intent = new Intent(activity, com.farproc.wifi.connecter.MainActivity.class);
+		intent.putExtra("com.farproc.wifi.connecter.extra.HOTSPOT", hotspot);
+		activity.startActivity(intent);
 	}
 }

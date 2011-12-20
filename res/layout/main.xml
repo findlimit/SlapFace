@@ -27,10 +27,4 @@
         android:layout_height="wrap_content"
         android:text="FaceTest" />
 
-    <ListView
-        android:id="@+id/lvWifi"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:visibility="invisible">
-    </ListView>
-
 </LinearLayout>

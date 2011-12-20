@@ -29,19 +29,16 @@ import java.util.Comparator;
 import java.util.List;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
 import android.net.wifi.WifiConfiguration.AuthAlgorithm;
 import android.net.wifi.WifiConfiguration.GroupCipher;
 import android.net.wifi.WifiConfiguration.KeyMgmt;
 import android.net.wifi.WifiConfiguration.PairwiseCipher;
 import android.net.wifi.WifiConfiguration.Protocol;
+import android.net.wifi.WifiManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 public class Wifi {
 	
@@ -182,13 +179,7 @@ public class Wifi {
 		if(!connect) {
 			return false;
 		}
-		ConnectivityManager connectivityManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-		while (!networkInfo.getState().equals(NetworkInfo.State.CONNECTING));
-		while (!networkInfo.getState().equals(NetworkInfo.State.CONNECTED)) {
-			Toast.makeText(ctx, networkInfo.getState().toString(), Toast.LENGTH_LONG).show();
-		}
-		
+
 		return true;
 	}
 	
