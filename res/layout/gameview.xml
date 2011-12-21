@@ -16,7 +16,7 @@
         android:id="@+id/enemyHpBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="25sp"
         android:max="100"
         android:progress="100" />
 
@@ -58,6 +58,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="TextView" />
+
+        <Button
+            android:id="@+id/atkBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button"/>
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="False" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Miss" />
+
     </LinearLayout>
 
 </LinearLayout>

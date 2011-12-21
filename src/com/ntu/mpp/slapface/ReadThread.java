@@ -2,6 +2,8 @@ package com.ntu.mpp.slapface;
 
 import java.io.IOException;
 
+import com.ntu.mpp.slapface.GameActivity.messageCode;
+
 import android.os.Handler;
 import android.util.Log;
 
@@ -32,8 +34,12 @@ public class ReadThread implements Runnable {
 						tmp = "";
 						// Log.e("null", "null");
 					} else {
-						mHandler.sendMessage(mHandler.obtainMessage(0, tmp));
-						Log.d("Peter", String.valueOf(mBoolHost) + "/" + tmp);
+
+						if (tmp.equals("ATK")) {
+							mHandler.sendMessage(mHandler.obtainMessage(messageCode.ATK, tmp));
+
+						}
+						Log.e("Peter", String.valueOf(mBoolHost) + "/" + tmp);
 					}
 
 				} else {
