@@ -49,9 +49,10 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private Double accelerate;
 	private Boolean isAttackState;
 	private Boolean isDefendState;
-	private Boolean isMissTimeState;
+	private Boolean isMissOkTimeState = false;
 	private int missChance;
 	private Boolean isDetect;
+	private Boolean countMissTime = false;
 
 	private TextView testTextView;
 	private TextView testTextView2;
@@ -95,7 +96,14 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		setContentView(R.layout.gameview);
 		findViews();
 
+		// checkSyncState();
+
 		gameStart();
+
+	}
+
+	private void checkSyncState() {
+		// TODO Auto-generated method stub
 
 	}
 
@@ -159,7 +167,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		isDefendState = true;
 		isAttackState = false;
 		atkButton.setClickable(false);
-		isMissTimeState = false;
+		isMissOkTimeState = false;
 		missChance = 1;
 
 	}
@@ -169,8 +177,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		mHandler.sendEmptyMessageDelayed(messageCode.MISS_START, 500);
 
 		// Countdown miss time now is 1.5s
-		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_START, 1000);
-		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_OVER, 2500);
+		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_START, 2000);
+		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_OVER, 3500);
 	}
 
 	private void findViews() {
@@ -369,12 +377,27 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				if (numberOfFaceDetected > 0) {
 					// detect.setText("true");
 					// detect.setBackgroundColor(Color.GREEN);
+
 					mHandler.sendEmptyMessage(messageCode.FACE_DETECT);
+
 					// Log.e(tag, "detected");
 				} else {
 					// detect.setText("false");
 					// detect.setBackgroundColor(Color.RED);
+
 					mHandler.sendEmptyMessage(messageCode.FACE_NOT_DETECT);
+
+					// If want to make more missChance, should modify this part
+					// Use to count miss when miss time open
+					if (countMissTime && missChance > 0 && isMissOkTimeState) {
+						missChance--;
+						mHandler.sendEmptyMessage(messageCode.MISS_OK);
+
+					} else if (countMissTime && missChance > 0) {
+						missChance--;
+						mHandler.sendEmptyMessage(messageCode.MISS_FAIL);
+
+					}
 					// Log.e(tag, "not detected");
 				}
 				doingBoolean = false;
@@ -391,6 +414,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		public static final int COUNTDOWN_OVER = 2;
 		public static final int MISS_START = 3;
 		public static final int COUNTDOWN_START = 5;
+		public static final int MISS_FAIL = 4;
+		public static final int MISS_OK = 6;
 		public static final int ATK = 1000;
 	}
 
@@ -427,14 +452,27 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				break;
 			case messageCode.MISS_START:
 				testTextView3.setBackgroundColor(Color.GREEN);
+				countMissTime = true;
 				break;
 			case messageCode.COUNTDOWN_START:
-				isMissTimeState = true;
+				isMissOkTimeState = true;
 				testTextView2.setText("True");
 				break;
 			case messageCode.COUNTDOWN_OVER:
-				isMissTimeState = false;
+				isMissOkTimeState = false;
 				testTextView2.setText("False");
+				if (countMissTime && missChance > 0) {
+					sendEmptyMessageDelayed(messageCode.MISS_FAIL, 1000);
+					countMissTime = false;
+				}
+				break;
+			case messageCode.MISS_OK:
+				Log.e(tag, "MISS_OK");
+				countMissTime = false;
+				break;
+			case messageCode.MISS_FAIL:
+				Log.e(tag, "MISS_FAIL");
+				countMissTime = false;
 				break;
 			default:
 				break;
