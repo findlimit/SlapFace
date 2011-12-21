@@ -21,10 +21,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,13 +84,14 @@ public class ClientActivity extends Activity {
 	};
 	
 	boolean flagReadThread = true;
-	private ProgressDialog dia_join;
-	private TextView tvClientMsg;
+	boolean flagReconnect = false;
 	Thread readThread;
 	private WifiManager mWifiManager;
 	private List<ScanResult> mScanResults;
 	private ListView lvWifi;
-	boolean flagReconnect = false;
+	private Button btnClientStart;
+	private ProgressDialog dia_join;
+	private TextView tvClientMsg;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -96,13 +99,15 @@ public class ClientActivity extends Activity {
 		setContentView(R.layout.client);
 		
 		mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-		
-		Log.d("Peter", "in Client");
+	
 		lvWifi = (ListView) findViewById(R.id.lvWifi);
     	lvWifi.setAdapter(mListAdapter);
     	lvWifi.setOnItemClickListener(mItemOnClick);
-    	Log.d("Peter", "lv over");
 		tvClientMsg = (TextView) findViewById(R.id.tvClientMsg);
+		btnClientStart = (Button) findViewById(R.id.btnClientStart);
+		if (!mWifiManager.getConnectionInfo().getSupplicantState().equals(SupplicantState.COMPLETED))
+			btnClientStart.setVisibility(Button.INVISIBLE);
+		
 		dia_join = new ProgressDialog(ClientActivity.this);
 		setListeners();
 	}
@@ -144,8 +149,8 @@ public class ClientActivity extends Activity {
 				}
 				if (flagReconnect && newState.equals(SupplicantState.COMPLETED)) {
 					flagReconnect = false;
-					Log.d("Peter", "openClient");
-					openClientConnection();
+					dia_join.dismiss();
+					btnClientStart.setVisibility(Button.VISIBLE);
 				}
 			}
 		}
@@ -214,6 +219,13 @@ public class ClientActivity extends Activity {
 				ClientActivity.this.finish();
 			}
 
+		});
+		btnClientStart.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				openClientConnection();
+			}
 		});
 	}
 	
