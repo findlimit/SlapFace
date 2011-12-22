@@ -490,6 +490,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	public void onSensorChanged(SensorEvent event) {// Use to Attack
 
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && isAttackState) {
+			// ===========Wait to train slap motion===========
 			accelerate = getAccelerate(event.values[0], event.values[1], event.values[2]);
 			testTextView.setText(" " + accelerate);
 			if (accelerate >= 33) {
@@ -497,6 +498,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				defendState();
 				Log.e(tag, "ATK");
 			}
+			// ===========Wait to train slap motion===========
 		}
 	}
 
