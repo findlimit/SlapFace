@@ -223,7 +223,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 		myHpBar = (ProgressBar) findViewById(R.id.myHpBar);
 		enemyHpBar = (ProgressBar) findViewById(R.id.enemyHpBar);
-		sl = (LinearLayout) findViewById(R.id.linearLayout5);
+		sl = (LinearLayout) findViewById(R.id.previewLayout);
 		myHP = (TextView) findViewById(R.id.myHP);
 		enemyHP = (TextView) findViewById(R.id.enemyHP);
 
@@ -380,7 +380,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				BitmapFactory.Options BitmapFactoryOptionsbfo = new BitmapFactory.Options();
 				BitmapFactoryOptionsbfo.inPreferredConfig = Bitmap.Config.RGB_565;
 
-				// Need to speed up==========
+				//TODO Need to speed up and resize by camera resolution==========
 				tmp2 = Bitmap.createBitmap(tmp, 0, 0, tmp.getWidth(), tmp.getHeight(), m, true);
 				bitmapPicture = Bitmap.createScaledBitmap(tmp2, (int) (tmp2.getWidth() * 0.20), (int) (tmp2.getHeight() * 0.20), true);
 
@@ -388,7 +388,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				bitmapPicture.compress(Bitmap.CompressFormat.JPEG, 100, baos);
 
 				bitmapPicture = BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.toByteArray().length, BitmapFactoryOptionsbfo);
-				// Need to speed up==========
+				//TODO Need to speed up and resize by camera resolution==========
 
 				imageWidth = bitmapPicture.getWidth();
 				imageHeight = bitmapPicture.getHeight();
