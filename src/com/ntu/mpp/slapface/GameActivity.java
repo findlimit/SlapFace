@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import android.app.Activity;
+import android.app.Service;
 import android.content.Intent;
 
 import android.graphics.Bitmap;
@@ -21,6 +22,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -57,6 +59,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private LinearLayout sl;
 	private TextView enemyHP;
 	private TextView myHP;
+	private Vibrator mVibrator;
 
 	private TextView testTextView;
 	private TextView testTextView2;
@@ -117,6 +120,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 		readThread = new Thread(new ReadThread(host, mAgent, mHandler));
 		readThread.start();
+
+		mVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
 
 		SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
@@ -200,11 +205,11 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private void checkMissAction() {
 		// This line should do exchange animation between attack and defend
 		motionHint.setText("Ready to look monitor!");
-		mHandler.sendEmptyMessageDelayed(messageCode.MISS_START, 500);
+		mHandler.sendEmptyMessageDelayed(messageCode.MISS_START, 600);
 
 		// Countdown miss time now is 1.5s
-		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_START, 1500);
-		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_OVER, 2500);
+		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_START, 1600);
+		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_OVER, 2600);
 	}
 
 	private void findViews() {
@@ -235,6 +240,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				if (isAttackState) {
 					mAgent.write("ATK&20");
 					defendState();
+					mVibrator.vibrate(200);
 					Log.e(tag, "Press ATK");
 				}
 
@@ -450,6 +456,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				if (isDefendState) {
 					damage = Integer.valueOf(msg.obj.toString());
 					// Ready to miss state
+					mVibrator.vibrate(500);
 					checkMissAction();
 				}
 				break;
@@ -562,6 +569,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			accelerate = getAccelerate(event.values[0], event.values[1], event.values[2]);
 			testTextView.setText(" " + accelerate);
 			if (accelerate >= 33) {
+				mVibrator.vibrate(200);
 				mAgent.write("ATK&20");// TODO make real damage
 				defendState();
 				Log.e(tag, "ATK");
@@ -573,5 +581,11 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
 
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		mVibrator.cancel();
 	}
 }
