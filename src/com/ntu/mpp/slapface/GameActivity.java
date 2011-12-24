@@ -55,6 +55,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private int damage;
 	private Boolean winner;
 	private LinearLayout sl;
+	private TextView enemyHP;
+	private TextView myHP;
 
 	private TextView testTextView;
 	private TextView testTextView2;
@@ -103,6 +105,24 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 		gameStart();
 
+	}
+
+	private void init() {
+		host = getIntent().getBooleanExtra("host", true);
+		if (host) {
+			mAgent = HostActivity.mServerAgent;
+		} else {
+			mAgent = ClientActivity.mClientAgent;
+		}
+
+		readThread = new Thread(new ReadThread(host, mAgent, mHandler));
+		readThread.start();
+
+		SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
+		if (sensors.size() > 0) {
+			sensorManager.registerListener(this, sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
+		}
 	}
 
 	private void checkSyncState() {
@@ -199,6 +219,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		myHpBar = (ProgressBar) findViewById(R.id.myHpBar);
 		enemyHpBar = (ProgressBar) findViewById(R.id.enemyHpBar);
 		sl = (LinearLayout) findViewById(R.id.linearLayout5);
+		myHP = (TextView) findViewById(R.id.myHP);
+		enemyHP = (TextView) findViewById(R.id.enemyHP);
 
 		motionHint = (TextView) findViewById(R.id.motionHint);
 		testTextView = (TextView) findViewById(R.id.textView1);
@@ -227,24 +249,6 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		intent.putExtra("host", host);
 		startActivity(intent);
 		finish();
-	}
-
-	private void init() {
-		host = getIntent().getBooleanExtra("host", true);
-		if (host) {
-			mAgent = HostActivity.mServerAgent;
-		} else {
-			mAgent = ClientActivity.mClientAgent;
-		}
-
-		readThread = new Thread(new ReadThread(host, mAgent, mHandler));
-		readThread.start();
-
-		SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
-		if (sensors.size() > 0) {
-			sensorManager.registerListener(this, sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
-		}
 	}
 
 	// Face detection part==========↓
@@ -502,10 +506,11 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				myHpBar.setProgress(myHpBar.getProgress() - damage);
 				if (myHpBar.getProgress() > 0) {
 					mAgent.write("HP&" + String.valueOf(myHpBar.getProgress()));
-
+					myHP.setText(String.valueOf(myHpBar.getProgress()));
 					// TODO ======Show wait to ATK move attackState(); to COUNTDOWN_OVER======
 					// attackState();// Wait to set delay after COUNTDOWN_OVER
 				} else {
+					myHP.setText(String.valueOf(myHpBar.getProgress()));
 					motionHint.setText("You lose!");
 					mAgent.write("OVER");
 					winner = false;
@@ -520,11 +525,13 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 					motionHint.setText("Not Hit!");
 				}
 				enemyHpBar.setProgress(Integer.valueOf(msg.obj.toString()));
+				enemyHP.setText(String.valueOf(enemyHpBar.getProgress()));
 				break;
 			case messageCode.OVER:
 				motionHint.setText("You win!");
 				enemyHpBar.setProgress(0);
 				winner = true;
+				enemyHP.setText("0");
 				mHandler.sendEmptyMessageDelayed(messageCode.OVER_VIEW, 2000);
 				break;
 			case messageCode.OVER_VIEW:
