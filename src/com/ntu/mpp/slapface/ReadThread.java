@@ -10,6 +10,7 @@ import android.util.Log;
 public class ReadThread implements Runnable {
 
 	private String tmp;
+	private String[] tmpPart;
 	private SocketAgent mAgent;
 	private Boolean flagReadThread = true;
 	private Handler mHandler;
@@ -34,10 +35,14 @@ public class ReadThread implements Runnable {
 						tmp = "";
 						// Log.e("null", "null");
 					} else {
+						tmpPart = tmp.split("&");
 
-						if (tmp.equals("ATK")) {
-							mHandler.sendMessage(mHandler.obtainMessage(messageCode.ATK, tmp));
-
+						if (tmpPart[0].equals("ATK")) {
+							mHandler.sendMessage(mHandler.obtainMessage(messageCode.ATK, tmpPart[1]));
+						} else if (tmpPart[0].equals("HP")) {
+							mHandler.sendMessage(mHandler.obtainMessage(messageCode.ENEMY_HP_ACK, tmpPart[1]));
+						} else if (tmpPart[0].equals("OVER")) {
+							mHandler.sendEmptyMessage(messageCode.OVER);
 						}
 						Log.e("Peter", String.valueOf(mBoolHost) + "/" + tmp);
 					}
