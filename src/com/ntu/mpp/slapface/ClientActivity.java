@@ -4,14 +4,19 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import com.farproc.wifi.connecter.NewNetworkContent;
+
+import android.R.integer;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.res.ColorStateList;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.net.DhcpInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.SupplicantState;
@@ -19,6 +24,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,7 +46,7 @@ public class ClientActivity extends Activity {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case C.SHOW_MSG:
-				dia_join.show();
+//				dia_join.show();
 				break;
 			case C.DISMISS_MSG:
 				dia_join.dismiss();
@@ -49,7 +55,6 @@ public class ClientActivity extends Activity {
 //				dia_join.setTitle(R.string.connectok);
 //				dia_join.setMessage(ClientActivity.this.getResources()
 //						.getString(R.string.waitforhost));
-				dia_join.dismiss();
 				readThread = new Thread() {// Read "start" string from server.
 					String tmp = "";
 
@@ -59,11 +64,14 @@ public class ClientActivity extends Activity {
 							while (true) {
 								tmp = mClientAgent.read();
 								if (tmp.equals("start")) {
+									dia_join.dismiss();
 									Intent intent = new Intent(ClientActivity.this, GameActivity.class);
 									intent.putExtra("host", false);
 									ClientActivity.this.startActivity(intent);
-									ClientActivity.this.finish();
 									break;
+								} else if (tmp.equals("SlapFace")){
+									flagConnected = true;
+									dia_join.setMessage("Connected! Wait for host to start");
 								}
 							}
 						} catch (IOException e) {
@@ -79,19 +87,27 @@ public class ClientActivity extends Activity {
 				dia_join.setMessage(ClientActivity.this.getResources()
 						.getString(R.string.pleasereconnect));
 				break;
+			case C.START_GAME:
+				String str = (String) msg.obj;
+				Toast.makeText(ClientActivity.this, str, Toast.LENGTH_LONG).show();
+				dia_join.dismiss();
+				break;
 			}
 		}
 	};
 	
 	boolean flagReadThread = true;
 	boolean flagReconnect = false;
+	boolean flagConnected = false;
 	Thread readThread;
 	private WifiManager mWifiManager;
 	private List<ScanResult> mScanResults;
 	private ListView lvWifi;
-	private Button btnClientStart;
+	private Button btnClientConnect;
 	private ProgressDialog dia_join;
 	private TextView tvClientMsg;
+	private TextView tvClientBSSID;
+//	private Button btnClientOther;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -104,17 +120,28 @@ public class ClientActivity extends Activity {
     	lvWifi.setAdapter(mListAdapter);
     	lvWifi.setOnItemClickListener(mItemOnClick);
 		tvClientMsg = (TextView) findViewById(R.id.tvClientMsg);
-		btnClientStart = (Button) findViewById(R.id.btnClientStart);
-		if (!mWifiManager.getConnectionInfo().getSupplicantState().equals(SupplicantState.COMPLETED))
-			btnClientStart.setVisibility(Button.INVISIBLE);
+		tvClientBSSID = (TextView) findViewById(R.id.tvClientBSSID);
+		btnClientConnect = (Button) findViewById(R.id.btnClientConnect);
+//		btnClientConnect.setClickable(false);
+//		btnClientConnect.setTextColor(Color.GRAY);
+//		btnClientOther = (Button) findViewById(R.id.btnClientOther);
+//		if (!mWifiManager.getConnectionInfo().getSupplicantState().equals(SupplicantState.COMPLETED))
+//			btnClientStart.setVisibility(Button.INVISIBLE);
 		
 		dia_join = new ProgressDialog(ClientActivity.this);
+		dia_join.setMessage("Connecting...");
+//		dia_join.setCancelable(false);
 		setListeners();
 	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (!mWifiManager.isWifiEnabled()) {
+			mWifiManager.setWifiEnabled(true);
+		}
+		tvClientBSSID.setText(mWifiManager.getConnectionInfo().getSSID());
+
 		final IntentFilter filter = new IntentFilter();
 		filter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
 		filter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
@@ -126,6 +153,9 @@ public class ClientActivity extends Activity {
 	public void onPause() {
 		super.onPause();
 		unregisterReceiver(mReceiver);
+//		if (mClientAgent != null) {
+//			mClientAgent.end();
+//		}
 	}
 	
 	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -136,23 +166,29 @@ public class ClientActivity extends Activity {
 			if (action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
 				mScanResults = mWifiManager.getScanResults();
 				mListAdapter.notifyDataSetChanged();
-				
 //				mWifiManager.startScan();
 			} else if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
 				SupplicantState newState = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
-				tvClientMsg.setText(newState.toString());
-				if (newState.equals(SupplicantState.DISCONNECTED)) {
-					flagReconnect = true;
-					Log.d("Peter", "disconnected");
-					Message m = mHandler.obtainMessage(C.SHOW_MSG);
-					mHandler.sendMessage(m);
-				}
-				if (flagReconnect && newState.equals(SupplicantState.COMPLETED)) {
-					flagReconnect = false;
-					dia_join.dismiss();
-					btnClientStart.setVisibility(Button.VISIBLE);
+				if (newState.equals(SupplicantState.COMPLETED)) {
+					tvClientBSSID.setText(mWifiManager.getConnectionInfo().getSSID());
 				}
 			}
+//				else if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
+//				SupplicantState newState = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
+//				tvClientMsg.setText(newState.toString());
+//				if (newState.equals(SupplicantState.DISCONNECTED)) {
+//					flagReconnect = true;
+//					Log.d("Peter", "disconnected");
+////					Message m = mHandler.obtainMessage(C.SHOW_MSG);
+////					mHandler.sendMessage(m);
+//				}
+//				if (flagReconnect && newState.equals(SupplicantState.COMPLETED)) {
+//					flagReconnect = false;
+//					tvClientBSSID.setText(mWifiManager.getConnectionInfo().getSSID());
+////					dia_join.dismiss();
+////					btnClientConnect.setVisibility(Button.VISIBLE);
+//				}
+//			}
 		}
 	};
 	
@@ -201,32 +237,42 @@ public class ClientActivity extends Activity {
 	
 	private void setListeners() {
 
-		dia_join.setButton("取消", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-
-				dia_join.dismiss();
-
-				ClientActivity.this.finish();
-
-			}
-		});
-		dia_join.setOnCancelListener(new OnCancelListener() {
-
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				// TODO Auto-generated method stub
-				ClientActivity.this.finish();
-			}
-
-		});
-		btnClientStart.setOnClickListener(new OnClickListener() {
+//		dia_join.setButton("取消", new DialogInterface.OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//
+//				dia_join.dismiss();
+////				if (mClientAgent != null) {
+////					mClientAgent.end();
+////				}
+////				ClientActivity.this.finish();
+//
+//			}
+//		});
+//		dia_join.setOnCancelListener(new OnCancelListener() {
+//
+//			@Override
+//			public void onCancel(DialogInterface dialog) {
+//				// TODO Auto-generated method stub
+//				ClientActivity.this.finish();
+//			}
+//
+//		});
+		btnClientConnect.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
+//				dia_join.show();
 				openClientConnection();
 			}
 		});
+//		btnClientOther.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				ClientActivity.this.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+//			}
+//		});
 	}
 	
 	protected void openClientConnection() {
@@ -239,14 +285,14 @@ public class ClientActivity extends Activity {
 		C.SERVER_IP = ((ipadd & 0xFF) + "." + (ipadd >> 8 & 0xFF) + "."
 				+ (ipadd >> 16 & 0xFF) + "." + (ipadd >> 24 & 0xFF));
 		Log.v(C.TAG, C.SERVER_IP);
-
-		while (true) {
-//			try {
-//				Thread.sleep(500);
-//			} catch (InterruptedException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			}
+		int i=0;
+		for (i = 0; i < 10; i++) {
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 			try {
 				mDhcpInfo = mWifiManager.getDhcpInfo();
@@ -254,13 +300,13 @@ public class ClientActivity extends Activity {
 				ipadd = mDhcpInfo.gateway;
 				C.SERVER_IP = ((ipadd & 0xFF) + "." + (ipadd >> 8 & 0xFF)
 						+ "." + (ipadd >> 16 & 0xFF) + "." + (ipadd >> 24 & 0xFF));
-				Log.v(C.TAG, C.SERVER_IP);
+//				Log.v(C.TAG, C.SERVER_IP);
 				mClientAgent = new ClientAgent(
 						C.SERVER_IP, C.SERVER_PORT, mHandler);
 				break;
 			} catch (UnknownHostException e) {
-				Toast.makeText(this, "Please connect in Setting",
-						Toast.LENGTH_LONG).show();
+//				Toast.makeText(this, "Please connect in Setting",
+//						Toast.LENGTH_LONG).show();
 
 				finish();
 			} catch (IOException e) {
@@ -268,7 +314,30 @@ public class ClientActivity extends Activity {
 			}
 		}
 
-		mClientAgent.write("");
+		if (mClientAgent == null) {
+			mHandler.sendMessage(mHandler.obtainMessage(C.START_GAME, "You are connecting to wrong host!"));
+			return;
+		} else {
+			mClientAgent.write("SlapFace");
+			Thread thread = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					if (!flagConnected) {
+						mHandler.sendMessage(mHandler.obtainMessage(C.START_GAME, "You are connecting to wrong host!"));
+						return;
+					}
+				}
+			});
+			thread.start();
+			dia_join.show();
+		}
 		Log.e(C.TAG, "-openClientConnection()");
 	}
 	

@@ -1,25 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
     <TextView
         android:id="@+id/tvClientMsg"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/hello" />
-    
-    <Button 
-        android:id="@+id/btnClientStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start" />
-    
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/client_apbssid" />
+
+    <TextView
+        android:id="@+id/tvClientBSSID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvClientMsg"
+        android:layout_centerHorizontal="true"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <Button
+        android:id="@+id/btnClientConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tvClientBSSID"
+        android:layout_marginTop="30dp"
+        android:text="Connect" />
+
+    <!-- <Button
+        android:id="@+id/btnClientOther"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/tvClientBSSID"
+        android:layout_alignBottom="@+id/tvClientBSSID"
+        android:layout_marginLeft="18dp"
+        android:layout_toRightOf="@+id/tvClientBSSID"
+        android:text="other..." /> -->
+
     <ListView
         android:id="@+id/lvWifi"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/btnClientConnect" >
     </ListView>
 
-</LinearLayout>
+</RelativeLayout>
