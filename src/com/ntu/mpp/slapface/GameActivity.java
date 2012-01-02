@@ -3,10 +3,9 @@ package com.ntu.mpp.slapface;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.app.Activity;
+import android.app.Service;
+import android.content.Intent;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,6 +22,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -31,6 +31,7 @@ import android.widget.Button;
 
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -49,14 +50,22 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private Double accelerate;
 	private Boolean isAttackState;
 	private Boolean isDefendState;
-	private Boolean isMissTimeState;
+	private Boolean isMissOkTimeState = false;
 	private int missChance;
 	private Boolean isDetect;
+	private Boolean countMissTime = false;
+	private int damage;
+	private Boolean winner;
+	private LinearLayout sl;
+	private TextView enemyHP;
+	private TextView myHP;
+	private Vibrator mVibrator;
 
 	private TextView testTextView;
 	private TextView testTextView2;
 	private TextView testTextView3;
 	private Button atkButton;
+	private TextView motionHint;
 
 	// For face detection==========↓
 	private Camera myCamera;
@@ -95,7 +104,34 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		setContentView(R.layout.gameview);
 		findViews();
 
+		// TODO checkSyncState();
+
 		gameStart();
+
+	}
+
+	private void init() {
+		host = getIntent().getBooleanExtra("host", true);
+		if (host) {
+			mAgent = HostActivity.mServerAgent;
+		} else {
+			mAgent = ClientActivity.mClientAgent;
+		}
+
+		readThread = new Thread(new ReadThread(host, mAgent, mHandler));
+		readThread.start();
+
+		mVibrator = (Vibrator) getApplication().getSystemService(Service.VIBRATOR_SERVICE);
+
+		SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
+		if (sensors.size() > 0) {
+			sensorManager.registerListener(this, sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
+		}
+	}
+
+	private void checkSyncState() {
+		// TODO Auto-generated method stub
 
 	}
 
@@ -131,9 +167,11 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		// @Override
 		// public void run() {
 		if (host) {// Not handle sync problem
+			motionHint.setText("Go attack!");
 			attackState();
 			// testTextView.setText("HOST");
 		} else {
+			motionHint.setText("Ready to look monitor!");
 			defendState();
 			// testTextView.setText("CLIENT");
 		}
@@ -159,18 +197,19 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		isDefendState = true;
 		isAttackState = false;
 		atkButton.setClickable(false);
-		isMissTimeState = false;
+		isMissOkTimeState = false;
 		missChance = 1;
 
 	}
 
 	private void checkMissAction() {
 		// This line should do exchange animation between attack and defend
-		mHandler.sendEmptyMessageDelayed(messageCode.MISS_START, 500);
+		motionHint.setText("Ready to look monitor!");
+		mHandler.sendEmptyMessageDelayed(messageCode.MISS_START, 600);
 
 		// Countdown miss time now is 1.5s
-		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_START, 1000);
-		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_OVER, 2500);
+		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_START, 1600);
+		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_OVER, 2600);
 	}
 
 	private void findViews() {
@@ -184,7 +223,11 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 		myHpBar = (ProgressBar) findViewById(R.id.myHpBar);
 		enemyHpBar = (ProgressBar) findViewById(R.id.enemyHpBar);
+		sl = (LinearLayout) findViewById(R.id.linearLayout5);
+		myHP = (TextView) findViewById(R.id.myHP);
+		enemyHP = (TextView) findViewById(R.id.enemyHP);
 
+		motionHint = (TextView) findViewById(R.id.motionHint);
 		testTextView = (TextView) findViewById(R.id.textView1);
 		testTextView2 = (TextView) findViewById(R.id.textView2);
 		testTextView3 = (TextView) findViewById(R.id.textView3);
@@ -193,11 +236,11 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
 
 				if (isAttackState) {
-					mAgent.write("ATK");
+					mAgent.write("ATK&20");
 					defendState();
+					mVibrator.vibrate(200);
 					Log.e(tag, "Press ATK");
 				}
 
@@ -205,26 +248,13 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		});
 	}
 
-	private void gameOver(Boolean isWinner) {
-
-	}
-
-	private void init() {
-		host = getIntent().getBooleanExtra("host", true);
-		if (host) {
-			mAgent = HostActivity.mServerAgent;
-		} else {
-			mAgent = ClientActivity.mClientAgent;
-		}
-
-		readThread = new Thread(new ReadThread(host, mAgent, mHandler));
-		readThread.start();
-
-		SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
-		if (sensors.size() > 0) {
-			sensorManager.registerListener(this, sensors.get(0), SensorManager.SENSOR_DELAY_GAME);
-		}
+	private void gameOverWinner(Boolean isWinner) {
+		Intent intent = new Intent();
+		intent.setClass(GameActivity.this, GameOverActivity.class);
+		intent.putExtra("WIN", isWinner);
+		intent.putExtra("host", host);
+		startActivity(intent);
+		finish();
 	}
 
 	// Face detection part==========↓
@@ -369,12 +399,27 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				if (numberOfFaceDetected > 0) {
 					// detect.setText("true");
 					// detect.setBackgroundColor(Color.GREEN);
+
 					mHandler.sendEmptyMessage(messageCode.FACE_DETECT);
+
 					// Log.e(tag, "detected");
 				} else {
 					// detect.setText("false");
 					// detect.setBackgroundColor(Color.RED);
+
 					mHandler.sendEmptyMessage(messageCode.FACE_NOT_DETECT);
+
+					// If want to make more missChance, should modify this part
+					// Use to count miss when miss time open
+					if (countMissTime && missChance > 0 && isMissOkTimeState) {
+						missChance--;
+						mHandler.sendEmptyMessage(messageCode.MISS_OK);
+
+					} else if (countMissTime && missChance > 0) {
+						missChance--;
+						mHandler.sendEmptyMessage(messageCode.MISS_FAIL);
+
+					}
 					// Log.e(tag, "not detected");
 				}
 				doingBoolean = false;
@@ -391,7 +436,13 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		public static final int COUNTDOWN_OVER = 2;
 		public static final int MISS_START = 3;
 		public static final int COUNTDOWN_START = 5;
-		public static final int ATK = 1000;
+		public static final int MISS_FAIL = 4;
+		public static final int MISS_OK = 6;
+		public static final int ENEMY_HP_ACK = 7;
+		public static final int OVER = 8;
+		public static final int OVER_VIEW = 9;
+		public static final int ATK = 10;
+		public static final int CHANGE_ATK_STATE = 11;
 	}
 
 	Handler mHandler = new Handler() {
@@ -399,27 +450,25 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		public void handleMessage(Message msg) {
 
 			super.handleMessage(msg);
-			// test.setText(msg.obj.toString());
 
 			switch (msg.what) {
 			case messageCode.ATK:
 				if (isDefendState) {
-
+					damage = Integer.valueOf(msg.obj.toString());
 					// Ready to miss state
+					mVibrator.vibrate(500);
 					checkMissAction();
-
-					myHpBar.setProgress(myHpBar.getProgress() - 10);
-					attackState();// For test should do after return self HP
 				}
-
 				break;
 			case messageCode.FACE_DETECT:
+				sl.setBackgroundColor(Color.GREEN);
 				isDetect = true;
 				detect.setText("true");
 				detect.setBackgroundColor(Color.GREEN);
 				// Log.e(tag, "detect");
 				break;
 			case messageCode.FACE_NOT_DETECT:
+				sl.setBackgroundColor(Color.RED);
 				isDetect = false;
 				detect.setText("false");
 				detect.setBackgroundColor(Color.RED);
@@ -427,15 +476,79 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				break;
 			case messageCode.MISS_START:
 				testTextView3.setBackgroundColor(Color.GREEN);
+				countMissTime = true;
 				break;
 			case messageCode.COUNTDOWN_START:
-				isMissTimeState = true;
+				if (missChance > 0) {
+					motionHint.setText("Turn your face now!");
+				}
+				isMissOkTimeState = true;
 				testTextView2.setText("True");
 				break;
 			case messageCode.COUNTDOWN_OVER:
-				isMissTimeState = false;
+				isMissOkTimeState = false;
 				testTextView2.setText("False");
+				if (countMissTime && missChance > 0) {
+					// mHandler.sendEmptyMessageDelayed(messageCode.MISS_FAIL, 1000);
+					mHandler.sendEmptyMessage(messageCode.MISS_FAIL);
+					countMissTime = false;
+				}
+				mHandler.sendEmptyMessageDelayed(messageCode.CHANGE_ATK_STATE, 500);
 				break;
+			case messageCode.MISS_OK:
+				Log.e(tag, "MISS_OK");
+				motionHint.setText("MISS! Good job!");
+				countMissTime = false;
+				// isMissOkTimeState = false;
+				mAgent.write("HP&" + String.valueOf(myHpBar.getProgress()));
+
+				// TODO ======Show wait to ATK move attackState(); to COUNTDOWN_OVER======
+				// attackState();// Wait to set delay after COUNTDOWN_OVER
+				break;
+			case messageCode.MISS_FAIL:
+				Log.e(tag, "MISS_FAIL");
+				motionHint.setText("Not MISS! Too bad!");
+				countMissTime = false;
+				// isMissOkTimeState = false;
+				myHpBar.setProgress(myHpBar.getProgress() - damage);
+				if (myHpBar.getProgress() > 0) {
+					mAgent.write("HP&" + String.valueOf(myHpBar.getProgress()));
+					myHP.setText(String.valueOf(myHpBar.getProgress()));
+					// TODO ======Show wait to ATK move attackState(); to COUNTDOWN_OVER======
+					// attackState();// Wait to set delay after COUNTDOWN_OVER
+				} else {
+					myHP.setText(String.valueOf(myHpBar.getProgress()));
+					motionHint.setText("You lose!");
+					mAgent.write("OVER");
+					winner = false;
+					mHandler.sendEmptyMessageDelayed(messageCode.OVER_VIEW, 2000);
+				}
+				break;
+			case messageCode.ENEMY_HP_ACK:
+				Log.e(tag, "HP_ACK");
+				if (Integer.valueOf(msg.obj.toString()) < enemyHpBar.getProgress()) {
+					motionHint.setText("Hit!");
+				} else {
+					motionHint.setText("Not Hit!");
+				}
+				enemyHpBar.setProgress(Integer.valueOf(msg.obj.toString()));
+				enemyHP.setText(String.valueOf(enemyHpBar.getProgress()));
+				break;
+			case messageCode.OVER:
+				motionHint.setText("You win!");
+				enemyHpBar.setProgress(0);
+				winner = true;
+				enemyHP.setText("0");
+				mHandler.sendEmptyMessageDelayed(messageCode.OVER_VIEW, 2000);
+				break;
+			case messageCode.OVER_VIEW:
+				gameOverWinner(winner);
+				break;
+			case messageCode.CHANGE_ATK_STATE:
+				motionHint.setText("Go attack!");
+				attackState();
+				break;
+
 			default:
 				break;
 			}
@@ -452,18 +565,27 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	public void onSensorChanged(SensorEvent event) {// Use to Attack
 
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && isAttackState) {
+			// TODO ===========Wait to train slap motion===========
 			accelerate = getAccelerate(event.values[0], event.values[1], event.values[2]);
 			testTextView.setText(" " + accelerate);
 			if (accelerate >= 33) {
-				mAgent.write("ATK");
+				mVibrator.vibrate(200);
+				mAgent.write("ATK&20");// TODO make real damage
 				defendState();
 				Log.e(tag, "ATK");
 			}
+			// TODO ===========Wait to train slap motion===========
 		}
 	}
 
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
 
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		mVibrator.cancel();
 	}
 }
