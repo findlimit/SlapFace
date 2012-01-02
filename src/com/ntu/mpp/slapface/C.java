@@ -6,7 +6,7 @@ public class C {
 	
 	public static String SERVER_IP = "192.168.5.1";
 	public static final int SERVER_PORT = 12345;
-	public static final String SERVER_SSID = "slapface";
+	public static String SERVER_SSID = null;
 	public static final int MAX_CLIENT_NUM = 1;
 	
 	// Messages for ClientActivity
@@ -21,4 +21,6 @@ public class C {
 	protected static final int ADD_OUTPUT = 7;
 	protected static final int ADD_INPUT = 8;
 	
+	// Thread run flag
+	protected static Boolean SOCKET_LISTENER = true;
 }
