@@ -207,11 +207,13 @@ public class HostActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (mServerAgent != null) {
-			mServerAgent.clear();
+//		if (mServerAgent != null) {
+//			mServerAgent.clear();
+//		}
+		if (socketListener_t != null) {
+			C.SOCKET_LISTENER = false;
+			socketListener_t.interrupt();
 		}
-		C.SOCKET_LISTENER = false;
-		socketListener_t.interrupt();
 	}
 	
 	private void setListeners() {
