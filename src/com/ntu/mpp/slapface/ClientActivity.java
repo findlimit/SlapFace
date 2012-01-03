@@ -2,6 +2,8 @@ package com.ntu.mpp.slapface;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.farproc.wifi.connecter.NewNetworkContent;
@@ -165,6 +167,7 @@ public class ClientActivity extends Activity {
 			final String action = intent.getAction();
 			if (action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
 				mScanResults = mWifiManager.getScanResults();
+				Collections.sort(mScanResults, Collections.reverseOrder());
 				mListAdapter.notifyDataSetChanged();
 //				mWifiManager.startScan();
 			} else if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
