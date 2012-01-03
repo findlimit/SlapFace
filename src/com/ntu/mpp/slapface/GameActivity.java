@@ -60,6 +60,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private TextView enemyHP;
 	private TextView myHP;
 	private Vibrator mVibrator;
+	private LinearLayout infoLinearLayout;
 
 	private TextView testTextView;
 	private TextView testTextView2;
@@ -168,10 +169,12 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		// public void run() {
 		if (host) {// Not handle sync problem
 			motionHint.setText("Go attack!");
+			infoLinearLayout.setBackgroundResource(R.drawable.sf_slap_attack);
 			attackState();
 			// testTextView.setText("HOST");
 		} else {
 			motionHint.setText("Ready to look monitor!");
+			infoLinearLayout.setBackgroundResource(R.drawable.sf_look_the_phone_monitor);
 			defendState();
 			// testTextView.setText("CLIENT");
 		}
@@ -206,7 +209,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		// This line should do exchange animation between attack and defend
 		motionHint.setText("Ready to look monitor!");
 		mHandler.sendEmptyMessageDelayed(messageCode.MISS_START, 600);
-
+		infoLinearLayout.setBackgroundResource(R.drawable.sf_look_the_phone_monitor);
 		// Countdown miss time now is 1.5s
 		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_START, 1600);
 		mHandler.sendEmptyMessageDelayed(messageCode.COUNTDOWN_OVER, 2600);
@@ -218,12 +221,13 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		previewSurfaceHolder = previewSurfaceView.getHolder();
 		previewSurfaceHolder.addCallback(GameActivity.this);
 		previewSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		infoLinearLayout = (LinearLayout)findViewById(R.id.infoLayout);
 
 		detect = (TextView) findViewById(R.id.detectHint);
 
 		myHpBar = (ProgressBar) findViewById(R.id.myHpBar);
 		enemyHpBar = (ProgressBar) findViewById(R.id.enemyHpBar);
-		sl = (LinearLayout) findViewById(R.id.linearLayout5);
+		sl = (LinearLayout) findViewById(R.id.previewLayout);
 		myHP = (TextView) findViewById(R.id.myHP);
 		enemyHP = (TextView) findViewById(R.id.enemyHP);
 
@@ -380,7 +384,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				BitmapFactory.Options BitmapFactoryOptionsbfo = new BitmapFactory.Options();
 				BitmapFactoryOptionsbfo.inPreferredConfig = Bitmap.Config.RGB_565;
 
-				// Need to speed up==========
+				//TODO Need to speed up and resize by camera resolution==========
 				tmp2 = Bitmap.createBitmap(tmp, 0, 0, tmp.getWidth(), tmp.getHeight(), m, true);
 				bitmapPicture = Bitmap.createScaledBitmap(tmp2, (int) (tmp2.getWidth() * 0.20), (int) (tmp2.getHeight() * 0.20), true);
 
@@ -388,7 +392,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				bitmapPicture.compress(Bitmap.CompressFormat.JPEG, 100, baos);
 
 				bitmapPicture = BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.toByteArray().length, BitmapFactoryOptionsbfo);
-				// Need to speed up==========
+				//TODO Need to speed up and resize by camera resolution==========
 
 				imageWidth = bitmapPicture.getWidth();
 				imageHeight = bitmapPicture.getHeight();
@@ -481,6 +485,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			case messageCode.COUNTDOWN_START:
 				if (missChance > 0) {
 					motionHint.setText("Turn your face now!");
+					infoLinearLayout.setBackgroundResource(R.drawable.sf_turn_face_away_defend);
 				}
 				isMissOkTimeState = true;
 				testTextView2.setText("True");
@@ -498,6 +503,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			case messageCode.MISS_OK:
 				Log.e(tag, "MISS_OK");
 				motionHint.setText("MISS! Good job!");
+				infoLinearLayout.setBackgroundResource(R.drawable.sf_escaped);
 				countMissTime = false;
 				// isMissOkTimeState = false;
 				mAgent.write("HP&" + String.valueOf(myHpBar.getProgress()));
@@ -508,6 +514,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 			case messageCode.MISS_FAIL:
 				Log.e(tag, "MISS_FAIL");
 				motionHint.setText("Not MISS! Too bad!");
+				infoLinearLayout.setBackgroundResource(R.drawable.sf_failure);
 				countMissTime = false;
 				// isMissOkTimeState = false;
 				myHpBar.setProgress(myHpBar.getProgress() - damage);
@@ -519,6 +526,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				} else {
 					myHP.setText(String.valueOf(myHpBar.getProgress()));
 					motionHint.setText("You lose!");
+					infoLinearLayout.setBackgroundResource(R.drawable.sf_lose_min);
 					mAgent.write("OVER");
 					winner = false;
 					mHandler.sendEmptyMessageDelayed(messageCode.OVER_VIEW, 2000);
@@ -528,14 +536,17 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				Log.e(tag, "HP_ACK");
 				if (Integer.valueOf(msg.obj.toString()) < enemyHpBar.getProgress()) {
 					motionHint.setText("Hit!");
+					infoLinearLayout.setBackgroundResource(R.drawable.sf_hit);
 				} else {
 					motionHint.setText("Not Hit!");
+					infoLinearLayout.setBackgroundResource(R.drawable.sf_miss);
 				}
 				enemyHpBar.setProgress(Integer.valueOf(msg.obj.toString()));
 				enemyHP.setText(String.valueOf(enemyHpBar.getProgress()));
 				break;
 			case messageCode.OVER:
 				motionHint.setText("You win!");
+				infoLinearLayout.setBackgroundResource(R.drawable.sf_win_min);
 				enemyHpBar.setProgress(0);
 				winner = true;
 				enemyHP.setText("0");
@@ -546,6 +557,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				break;
 			case messageCode.CHANGE_ATK_STATE:
 				motionHint.setText("Go attack!");
+				infoLinearLayout.setBackgroundResource(R.drawable.sf_slap_attack);
 				attackState();
 				break;
 
