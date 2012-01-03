@@ -1,38 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ntu.mpp.slapface"
-    android:versionCode="4"
-    android:versionName="1.2" >
+    android:versionCode="5"
+    android:versionName="1.3" >
 
     <uses-sdk android:minSdkVersion="9" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:icon="@drawable/sf_icon"
         android:label="SlapFace" >
         <activity
-            android:name=".MainActivity"
             android:label="SlapFace"
+            android:name=".MainActivity"
             android:screenOrientation="portrait" >
-            <intent-filter>
+            <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HostActivity" >
+        <activity
+            android:name=".HostActivity"
+            android:screenOrientation="portrait" >
         </activity>
-        <activity android:name=".ClientActivity" >
+        <activity
+            android:name=".ClientActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".GameActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.farproc.wifi.connecter.MainActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
+            android:name="com.farproc.wifi.connecter.MainActivity"
             android:noHistory="true"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
 
@@ -43,11 +54,5 @@
             android:screenOrientation="portrait" >
         </activity>
     </application>
-
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 </manifest>

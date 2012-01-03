@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -41,22 +42,22 @@ import android.widget.Toast;
 import android.widget.TwoLineListItem;
 
 public class ClientActivity extends Activity {
-	
+
 	public static ClientAgent mClientAgent;
 	Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case C.SHOW_MSG:
-//				dia_join.show();
+				// dia_join.show();
 				break;
 			case C.DISMISS_MSG:
 				dia_join.dismiss();
 				break;
 			case C.CHANGE_MSG:
-//				dia_join.setTitle(R.string.connectok);
-//				dia_join.setMessage(ClientActivity.this.getResources()
-//						.getString(R.string.waitforhost));
+				// dia_join.setTitle(R.string.connectok);
+				// dia_join.setMessage(ClientActivity.this.getResources()
+				// .getString(R.string.waitforhost));
 				readThread = new Thread() {// Read "start" string from server.
 					String tmp = "";
 
@@ -71,7 +72,7 @@ public class ClientActivity extends Activity {
 									intent.putExtra("host", false);
 									ClientActivity.this.startActivity(intent);
 									break;
-								} else if (tmp.equals("SlapFace")){
+								} else if (tmp.equals("SlapFace")) {
 									flagConnected = true;
 									dia_join.setMessage("Connected! Wait for host to start");
 								}
@@ -86,8 +87,7 @@ public class ClientActivity extends Activity {
 				break;
 			case C.SOCKET_FAILED:
 				dia_join.setTitle(R.string.connectfail);
-				dia_join.setMessage(ClientActivity.this.getResources()
-						.getString(R.string.pleasereconnect));
+				dia_join.setMessage(ClientActivity.this.getResources().getString(R.string.pleasereconnect));
 				break;
 			case C.START_GAME:
 				String str = (String) msg.obj;
@@ -97,7 +97,7 @@ public class ClientActivity extends Activity {
 			}
 		}
 	};
-	
+
 	boolean flagReadThread = true;
 	boolean flagReconnect = false;
 	boolean flagConnected = false;
@@ -109,33 +109,34 @@ public class ClientActivity extends Activity {
 	private ProgressDialog dia_join;
 	private TextView tvClientMsg;
 	private TextView tvClientBSSID;
-//	private Button btnClientOther;
+
+	// private Button btnClientOther;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.client);
-		
+
 		mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-	
+
 		lvWifi = (ListView) findViewById(R.id.lvWifi);
-    	lvWifi.setAdapter(mListAdapter);
-    	lvWifi.setOnItemClickListener(mItemOnClick);
+		lvWifi.setAdapter(mListAdapter);
+		lvWifi.setOnItemClickListener(mItemOnClick);
 		tvClientMsg = (TextView) findViewById(R.id.tvClientMsg);
 		tvClientBSSID = (TextView) findViewById(R.id.tvClientBSSID);
 		btnClientConnect = (Button) findViewById(R.id.btnClientConnect);
-//		btnClientConnect.setClickable(false);
-//		btnClientConnect.setTextColor(Color.GRAY);
-//		btnClientOther = (Button) findViewById(R.id.btnClientOther);
-//		if (!mWifiManager.getConnectionInfo().getSupplicantState().equals(SupplicantState.COMPLETED))
-//			btnClientStart.setVisibility(Button.INVISIBLE);
-		
+		// btnClientConnect.setClickable(false);
+		// btnClientConnect.setTextColor(Color.GRAY);
+		// btnClientOther = (Button) findViewById(R.id.btnClientOther);
+		// if (!mWifiManager.getConnectionInfo().getSupplicantState().equals(SupplicantState.COMPLETED))
+		// btnClientStart.setVisibility(Button.INVISIBLE);
+
 		dia_join = new ProgressDialog(ClientActivity.this);
 		dia_join.setMessage("Connecting...");
-//		dia_join.setCancelable(false);
+		// dia_join.setCancelable(false);
 		setListeners();
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -150,18 +151,18 @@ public class ClientActivity extends Activity {
 		registerReceiver(mReceiver, filter);
 		mWifiManager.startScan();
 	}
-	
+
 	@Override
 	public void onPause() {
 		super.onPause();
 		unregisterReceiver(mReceiver);
-//		if (mClientAgent != null) {
-//			mClientAgent.end();
-//		}
+		// if (mClientAgent != null) {
+		// mClientAgent.end();
+		// }
 	}
-	
+
 	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-		
+
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			final String action = intent.getAction();
@@ -169,115 +170,111 @@ public class ClientActivity extends Activity {
 				mScanResults = mWifiManager.getScanResults();
 				Collections.sort(mScanResults, Collections.reverseOrder());
 				mListAdapter.notifyDataSetChanged();
-//				mWifiManager.startScan();
+				// mWifiManager.startScan();
 			} else if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
 				SupplicantState newState = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
 				if (newState.equals(SupplicantState.COMPLETED)) {
 					tvClientBSSID.setText(mWifiManager.getConnectionInfo().getSSID());
 				}
 			}
-//				else if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
-//				SupplicantState newState = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
-//				tvClientMsg.setText(newState.toString());
-//				if (newState.equals(SupplicantState.DISCONNECTED)) {
-//					flagReconnect = true;
-//					Log.d("Peter", "disconnected");
-////					Message m = mHandler.obtainMessage(C.SHOW_MSG);
-////					mHandler.sendMessage(m);
-//				}
-//				if (flagReconnect && newState.equals(SupplicantState.COMPLETED)) {
-//					flagReconnect = false;
-//					tvClientBSSID.setText(mWifiManager.getConnectionInfo().getSSID());
-////					dia_join.dismiss();
-////					btnClientConnect.setVisibility(Button.VISIBLE);
-//				}
-//			}
+			// else if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
+			// SupplicantState newState = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
+			// tvClientMsg.setText(newState.toString());
+			// if (newState.equals(SupplicantState.DISCONNECTED)) {
+			// flagReconnect = true;
+			// Log.d("Peter", "disconnected");
+			// // Message m = mHandler.obtainMessage(C.SHOW_MSG);
+			// // mHandler.sendMessage(m);
+			// }
+			// if (flagReconnect && newState.equals(SupplicantState.COMPLETED)) {
+			// flagReconnect = false;
+			// tvClientBSSID.setText(mWifiManager.getConnectionInfo().getSSID());
+			// // dia_join.dismiss();
+			// // btnClientConnect.setVisibility(Button.VISIBLE);
+			// }
+			// }
 		}
 	};
-	
+
 	private BaseAdapter mListAdapter = new BaseAdapter() {
-		
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			if(convertView == null || !(convertView instanceof TwoLineListItem)) {
-				convertView = View.inflate(getApplicationContext(), 
-						android.R.layout.simple_list_item_2, null);
+			if (convertView == null || !(convertView instanceof TwoLineListItem)) {
+				convertView = View.inflate(getApplicationContext(), android.R.layout.simple_list_item_2, null);
 			}
-			
+
 			final ScanResult result = mScanResults.get(position);
-			((TwoLineListItem)convertView).getText1().setText(result.SSID);
-			((TwoLineListItem)convertView).getText2().setText(
-					String.format("%s  %d", result.BSSID, result.level)
-					);
+			((TwoLineListItem) convertView).getText1().setText(result.SSID);
+			((TwoLineListItem) convertView).getText2().setText(String.format("%s  %d", result.BSSID, result.level));
 			return convertView;
 		}
-		
+
 		@Override
 		public long getItemId(int position) {
 			return position;
 		}
-		
+
 		@Override
 		public Object getItem(int position) {
 			return null;
 		}
-		
+
 		@Override
 		public int getCount() {
 			return mScanResults == null ? 0 : mScanResults.size();
 		}
 	};
-	
+
 	private OnItemClickListener mItemOnClick = new OnItemClickListener() {
 
 		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position,
-				long id) {
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			final ScanResult result = mScanResults.get(position);
 			launchWifiConnecter(ClientActivity.this, result);
 		}
 	};
-	
+
 	private void setListeners() {
 
-//		dia_join.setButton("取消", new DialogInterface.OnClickListener() {
-//			@Override
-//			public void onClick(DialogInterface dialog, int which) {
-//
-//				dia_join.dismiss();
-////				if (mClientAgent != null) {
-////					mClientAgent.end();
-////				}
-////				ClientActivity.this.finish();
-//
-//			}
-//		});
-//		dia_join.setOnCancelListener(new OnCancelListener() {
-//
-//			@Override
-//			public void onCancel(DialogInterface dialog) {
-//				// TODO Auto-generated method stub
-//				ClientActivity.this.finish();
-//			}
-//
-//		});
+		// dia_join.setButton("取消", new DialogInterface.OnClickListener() {
+		// @Override
+		// public void onClick(DialogInterface dialog, int which) {
+		//
+		// dia_join.dismiss();
+		// // if (mClientAgent != null) {
+		// // mClientAgent.end();
+		// // }
+		// // ClientActivity.this.finish();
+		//
+		// }
+		// });
+		// dia_join.setOnCancelListener(new OnCancelListener() {
+		//
+		// @Override
+		// public void onCancel(DialogInterface dialog) {
+		// // TODO Auto-generated method stub
+		// ClientActivity.this.finish();
+		// }
+		//
+		// });
 		btnClientConnect.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
-//				dia_join.show();
+				// dia_join.show();
 				openClientConnection();
 			}
 		});
-//		btnClientOther.setOnClickListener(new OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//				ClientActivity.this.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-//			}
-//		});
+		// btnClientOther.setOnClickListener(new OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// ClientActivity.this.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+		// }
+		// });
 	}
-	
+
 	protected void openClientConnection() {
 		Log.e(C.TAG, "+openClientConnection()");
 
@@ -285,10 +282,9 @@ public class ClientActivity extends Activity {
 		DhcpInfo mDhcpInfo = mWifiManager.getDhcpInfo();
 
 		int ipadd = mDhcpInfo.gateway;
-		C.SERVER_IP = ((ipadd & 0xFF) + "." + (ipadd >> 8 & 0xFF) + "."
-				+ (ipadd >> 16 & 0xFF) + "." + (ipadd >> 24 & 0xFF));
+		C.SERVER_IP = ((ipadd & 0xFF) + "." + (ipadd >> 8 & 0xFF) + "." + (ipadd >> 16 & 0xFF) + "." + (ipadd >> 24 & 0xFF));
 		Log.v(C.TAG, C.SERVER_IP);
-		int i=0;
+		int i = 0;
 		for (i = 0; i < 10; i++) {
 			try {
 				Thread.sleep(500);
@@ -301,15 +297,13 @@ public class ClientActivity extends Activity {
 				mDhcpInfo = mWifiManager.getDhcpInfo();
 
 				ipadd = mDhcpInfo.gateway;
-				C.SERVER_IP = ((ipadd & 0xFF) + "." + (ipadd >> 8 & 0xFF)
-						+ "." + (ipadd >> 16 & 0xFF) + "." + (ipadd >> 24 & 0xFF));
-//				Log.v(C.TAG, C.SERVER_IP);
-				mClientAgent = new ClientAgent(
-						C.SERVER_IP, C.SERVER_PORT, mHandler);
+				C.SERVER_IP = ((ipadd & 0xFF) + "." + (ipadd >> 8 & 0xFF) + "." + (ipadd >> 16 & 0xFF) + "." + (ipadd >> 24 & 0xFF));
+				// Log.v(C.TAG, C.SERVER_IP);
+				mClientAgent = new ClientAgent(C.SERVER_IP, C.SERVER_PORT, mHandler);
 				break;
 			} catch (UnknownHostException e) {
-//				Toast.makeText(this, "Please connect in Setting",
-//						Toast.LENGTH_LONG).show();
+				// Toast.makeText(this, "Please connect in Setting",
+				// Toast.LENGTH_LONG).show();
 
 				finish();
 			} catch (IOException e) {
@@ -323,7 +317,7 @@ public class ClientActivity extends Activity {
 		} else {
 			mClientAgent.write("SlapFace");
 			Thread thread = new Thread(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					try {
@@ -339,13 +333,24 @@ public class ClientActivity extends Activity {
 				}
 			});
 			thread.start();
+			dia_join.setOnKeyListener(new DialogInterface.OnKeyListener() {
+
+				@Override
+				public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+					if ((keyCode == KeyEvent.KEYCODE_BACK||keyCode == KeyEvent.KEYCODE_SEARCH)) {
+						return true;
+					}
+					return false;
+				}
+			});
 			dia_join.show();
 		}
 		Log.e(C.TAG, "-openClientConnection()");
 	}
-	
+
 	/**
 	 * Try to launch Wifi Connecter with {@link #hostspot}. Prompt user to download if Wifi Connecter is not installed.
+	 * 
 	 * @param activity
 	 * @param hotspot
 	 */
