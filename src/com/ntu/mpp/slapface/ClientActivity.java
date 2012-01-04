@@ -46,6 +46,11 @@ import android.widget.TwoLineListItem;
 public class ClientActivity extends Activity {
 
 	public static ClientAgent mClientAgent;
+	
+	public static void releaseClientAgent() {
+		mClientAgent = null;
+	}
+	
 	Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -73,10 +78,10 @@ public class ClientActivity extends Activity {
 									Intent intent = new Intent(ClientActivity.this, GameActivity.class);
 									intent.putExtra("host", false);
 									ClientActivity.this.startActivity(intent);
+									finish();
 									break;
 								} else if (tmp.equals("SlapFace")) {
 									flagConnected = true;
-									dia_join.setMessage("Connected! Wait for host to start");
 								}
 							}
 						} catch (IOException e) {
@@ -138,7 +143,7 @@ public class ClientActivity extends Activity {
 		// btnClientStart.setVisibility(Button.INVISIBLE);
 
 		dia_join = new ProgressDialog(ClientActivity.this);
-		dia_join.setMessage("Connecting...");
+		dia_join.setMessage("Connected! Wait for host to start");
 		// dia_join.setCancelable(false);
 		setListeners();
 	}

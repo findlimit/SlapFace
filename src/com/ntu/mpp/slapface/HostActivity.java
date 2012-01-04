@@ -40,6 +40,10 @@ public class HostActivity extends Activity {
 	
 	public static ServerAgent mServerAgent;
 	
+	public static void releaseServerAgent() {
+		mServerAgent = null;
+	}
+	
 	private Thread socketListener_t;
 	Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
@@ -72,8 +76,8 @@ public class HostActivity extends Activity {
 //						Toast.LENGTH_SHORT).show();
 				// HostActivity.this.setTitle(HostActivity.this.getTitle()
 				// + " " + (mServerAgent.clientCount + 1));
-				Log.d("Peter", "ready");
-				tvMsg.setText("ready");
+				Log.d("Peter", "Ready");
+				tvHostReady.setText(R.string.host_new_player);
 				btnStart.setTextColor(Color.BLACK);
 				btnStart.setClickable(true);
 				break;
@@ -91,6 +95,7 @@ public class HostActivity extends Activity {
 	boolean flagReadThread = true;
 	private TextView tvMsg;
 	private TextView tvHostSSID;
+	private TextView tvHostReady;
 	private Button btnStart;
 	private ImageView ivQRCode;
 	Thread readThread;
@@ -115,6 +120,7 @@ public class HostActivity extends Activity {
 //		ivQRCode = (ImageView) findViewById(R.id.ivQRCode);
 		tvMsg = (TextView) findViewById(R.id.tvHostMsg);
 		tvHostSSID = (TextView) findViewById(R.id.tvHostSSID);
+		tvHostReady = (TextView) findViewById(R.id.tvHostReady);
 		btnStart = (Button) findViewById(R.id.btnHostStart);
 		btnStart.setOnClickListener(mBtnStartOnClick);
 		btnStart.setClickable(false);

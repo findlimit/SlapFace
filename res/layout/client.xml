@@ -28,7 +28,7 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/tvClientSSID"
         android:layout_marginTop="30dp"
-        android:text="Connect" />
+        android:text="Ready" />
 
     <!-- <Button
         android:id="@+id/btnClientOther"

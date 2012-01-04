@@ -70,6 +70,13 @@ public class MainActivity extends Activity {
     	Log.d("Peter", "haha");
 	}
 	
+	@Override
+	protected void onResume() {
+		HostActivity.releaseServerAgent();
+		ClientActivity.releaseClientAgent();
+		super.onResume();
+	}
+	
 	private OnClickListener mBtnHostOnClick = new OnClickListener() {
 		
 		@Override
