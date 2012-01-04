@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Size;
@@ -62,6 +63,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	private TextView myHP;
 	private Vibrator mVibrator;
 	private LinearLayout infoLinearLayout;
+	private LinearLayout preViewLeft;
+	private LinearLayout preViewRight;
 
 	private TextView testTextView;
 	private TextView testTextView2;
@@ -102,6 +105,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		// For Full screen
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		setContentView(R.layout.gameview);
 		findViews();
@@ -223,6 +227,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		previewSurfaceHolder.addCallback(GameActivity.this);
 		previewSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		infoLinearLayout = (LinearLayout) findViewById(R.id.infoLayout);
+		preViewLeft=(LinearLayout) findViewById(R.id.preLeft);
+		preViewRight=(LinearLayout) findViewById(R.id.preRight);
 
 		detect = (TextView) findViewById(R.id.detectHint);
 
@@ -470,6 +476,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				isDetect = true;
 				detect.setText("true");
 				detect.setBackgroundColor(Color.GREEN);
+				preViewLeft.setBackgroundResource(R.drawable.sf_fd_left);
+				preViewRight.setBackgroundResource(R.drawable.sf_fd_right);
 				// Log.e(tag, "detect");
 				break;
 			case messageCode.FACE_NOT_DETECT:
@@ -477,6 +485,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 				isDetect = false;
 				detect.setText("false");
 				detect.setBackgroundColor(Color.RED);
+				preViewLeft.setBackgroundResource(R.drawable.sf_fud_left);
+				preViewRight.setBackgroundResource(R.drawable.sf_fud_right);
 				// Log.e(tag, "not detect");
 				break;
 			case messageCode.MISS_START:
