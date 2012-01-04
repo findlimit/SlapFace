@@ -14,21 +14,29 @@
         android:text="FaceTest"
         android:visibility="invisible" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btnHost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/faceTest"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/sf_button_new" />
+        android:src="@drawable/sf_button_new"
+        android:background="@null" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btnClient"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/btnHost"
         android:layout_alignTop="@+id/faceTest"
         android:layout_marginTop="17dp"
-        android:background="@drawable/sf_button_join"/>
+        android:src="@drawable/sf_button_join"
+        android:background="@null" />
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+    </RelativeLayout>
 
 </RelativeLayout>
