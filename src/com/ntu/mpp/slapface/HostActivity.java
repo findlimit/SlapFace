@@ -27,6 +27,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -89,6 +90,7 @@ public class HostActivity extends Activity {
 
 	boolean flagReadThread = true;
 	private TextView tvMsg;
+	private TextView tvHostSSID;
 	private Button btnStart;
 	private ImageView ivQRCode;
 	Thread readThread;
@@ -102,10 +104,17 @@ public class HostActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.host);
+		//Remove title bar
+	    this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+	    //Remove notification bar
+	    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	     
+	    setContentView(R.layout.host);
+
 		
 //		ivQRCode = (ImageView) findViewById(R.id.ivQRCode);
 		tvMsg = (TextView) findViewById(R.id.tvHostMsg);
+		tvHostSSID = (TextView) findViewById(R.id.tvHostSSID);
 		btnStart = (Button) findViewById(R.id.btnHostStart);
 		btnStart.setOnClickListener(mBtnStartOnClick);
 		btnStart.setClickable(false);
@@ -190,7 +199,8 @@ public class HostActivity extends Activity {
 			if ((wifiConfig = getWifiApConfig()) == null) {
 				tvMsg.setText(R.string.null_wifiapconfig);
 			} else if (wifiConfig.SSID != null){
-				tvMsg.setText("Your Hotspot Name is: " + wifiConfig.SSID);
+				tvMsg.setText("Your Hotspot Name is: ");
+				tvHostSSID.setText(wifiConfig.SSID);
 			} else {
 				tvMsg.setText(R.string.null_wifiapconfig);
 			}

@@ -10,6 +10,7 @@
     <string name="host_ready_false">Please wait for new player.</string>
     <string name="host_ready_true">Press Start!</string>
     <string name="client_apbssid">Please choose the Host\'s HotSpot(SSID)!\nYou are connecting to: </string>
+    <string name="client_ssid_connecting">Connecting</string>
     <string name="contents_contact">Contact info</string>
     <string name="contents_email">Email address</string>
     <string name="contents_location">Geographic coordinates</string>

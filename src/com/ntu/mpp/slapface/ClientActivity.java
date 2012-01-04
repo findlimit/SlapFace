@@ -32,6 +32,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -108,13 +110,17 @@ public class ClientActivity extends Activity {
 	private Button btnClientConnect;
 	private ProgressDialog dia_join;
 	private TextView tvClientMsg;
-	private TextView tvClientBSSID;
+	private TextView tvClientSSID;
 
 	// private Button btnClientOther;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//Remove title bar
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		//Remove notification bar
+		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.client);
 
 		mWifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
@@ -123,7 +129,7 @@ public class ClientActivity extends Activity {
 		lvWifi.setAdapter(mListAdapter);
 		lvWifi.setOnItemClickListener(mItemOnClick);
 		tvClientMsg = (TextView) findViewById(R.id.tvClientMsg);
-		tvClientBSSID = (TextView) findViewById(R.id.tvClientBSSID);
+		tvClientSSID = (TextView) findViewById(R.id.tvClientSSID);
 		btnClientConnect = (Button) findViewById(R.id.btnClientConnect);
 		// btnClientConnect.setClickable(false);
 		// btnClientConnect.setTextColor(Color.GRAY);
@@ -143,7 +149,7 @@ public class ClientActivity extends Activity {
 		if (!mWifiManager.isWifiEnabled()) {
 			mWifiManager.setWifiEnabled(true);
 		}
-		tvClientBSSID.setText(mWifiManager.getConnectionInfo().getSSID());
+		tvClientSSID.setText(mWifiManager.getConnectionInfo().getSSID());
 
 		final IntentFilter filter = new IntentFilter();
 		filter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
@@ -174,7 +180,13 @@ public class ClientActivity extends Activity {
 			} else if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
 				SupplicantState newState = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
 				if (newState.equals(SupplicantState.COMPLETED)) {
-					tvClientBSSID.setText(mWifiManager.getConnectionInfo().getSSID());
+					String strSSID = mWifiManager.getConnectionInfo().getSSID();
+//					Log.d("Peter", "strSSID: "+strSSID);
+					if (strSSID.equals(null)) {
+						tvClientSSID.setText(R.string.client_ssid_connecting);
+					} else {
+						tvClientSSID.setText(strSSID);
+					}
 				}
 			}
 			// else if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
