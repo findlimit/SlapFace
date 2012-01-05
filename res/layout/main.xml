@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/faceTest"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/sf_button_new"
+        android:src="@drawable/main_button_new"
         android:background="@null" />
 
     <ImageButton
@@ -30,7 +30,7 @@
         android:layout_alignLeft="@+id/btnHost"
         android:layout_alignTop="@+id/faceTest"
         android:layout_marginTop="17dp"
-        android:src="@drawable/sf_button_join"
+        android:src="@drawable/main_button_join"
         android:background="@null" />
 
     <RelativeLayout

@@ -2,21 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
-
-    <TextView
-        android:id="@+id/tvHostMsg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello" />
-
-    <TextView
-        android:id="@+id/tvHostSSID"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tvHostMsg"
-        android:layout_centerHorizontal="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+    android:background="@drawable/sf_host_wait"
+    android:orientation="vertical"
+    android:id="@+id/rl_host" >
 
     <TextView
         android:id="@+id/tvHostReady"
@@ -27,13 +15,33 @@
         android:text="@string/host_ready_false"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btnHostStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tvHostReady"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
-        android:text="Start" />
+        android:layout_marginBottom="20dp"
+        android:background="@null"
+        android:src="@drawable/host_button_start" />
+
+    <TextView
+        android:id="@+id/tvHostMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="a"
+        android:textColor="#000000"
+        android:textSize="25dp" />
+
+    <TextView
+        android:id="@+id/tvHostSSID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/tvHostReady"
+        android:layout_toRightOf="@+id/tvHostMsg"
+        android:textColor="#FF0000"
+        android:textSize="30dp" />
 
 </RelativeLayout>

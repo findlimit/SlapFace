@@ -30,7 +30,9 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.zxing.WriterException;
@@ -77,8 +79,9 @@ public class HostActivity extends Activity {
 				// HostActivity.this.setTitle(HostActivity.this.getTitle()
 				// + " " + (mServerAgent.clientCount + 1));
 				Log.d("Peter", "Ready");
-				tvHostReady.setText(R.string.host_new_player);
-				btnStart.setTextColor(Color.BLACK);
+				//tvHostReady.setText(R.string.host_new_player);
+				relativeLayout.setBackgroundResource(R.drawable.sf_host_already);
+				btnStart.setImageResource(R.drawable.sf_button_start_1);
 				btnStart.setClickable(true);
 				break;
 			case C.ADD_INPUT:
@@ -95,9 +98,10 @@ public class HostActivity extends Activity {
 	boolean flagReadThread = true;
 	private TextView tvMsg;
 	private TextView tvHostSSID;
-	private TextView tvHostReady;
-	private Button btnStart;
+//	private TextView tvHostReady;
+	private ImageButton btnStart;
 	private ImageView ivQRCode;
+	private RelativeLayout relativeLayout;
 	Thread readThread;
 
 //	private Intent intentQR;
@@ -120,11 +124,11 @@ public class HostActivity extends Activity {
 //		ivQRCode = (ImageView) findViewById(R.id.ivQRCode);
 		tvMsg = (TextView) findViewById(R.id.tvHostMsg);
 		tvHostSSID = (TextView) findViewById(R.id.tvHostSSID);
-		tvHostReady = (TextView) findViewById(R.id.tvHostReady);
-		btnStart = (Button) findViewById(R.id.btnHostStart);
+//		tvHostReady = (TextView) findViewById(R.id.tvHostReady);
+		btnStart = (ImageButton) findViewById(R.id.btnHostStart);
 		btnStart.setOnClickListener(mBtnStartOnClick);
-		btnStart.setClickable(false);
-		btnStart.setTextColor(Color.GRAY);
+		btnStart.setImageResource(R.drawable.sf_button_start_0);
+		relativeLayout = (RelativeLayout) findViewById(R.id.rl_host); 
 		
 		mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 //		mServerAgent = new ServerAgent();
