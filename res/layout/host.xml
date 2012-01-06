@@ -39,8 +39,8 @@
         android:id="@+id/tvHostSSID"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/tvHostReady"
-        android:layout_toRightOf="@+id/tvHostMsg"
+        android:layout_below="@+id/tvHostMsg"
+        android:layout_centerHorizontal="true"
         android:textColor="#FF0000"
         android:textSize="30dp" />
 

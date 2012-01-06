@@ -123,6 +123,8 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 		} else {
 			mAgent = ClientActivity.mClientAgent;
 		}
+		C.READ_THREAD = true;
+		C.FACE_THREAD = true;
 
 		readThread = new Thread(new ReadThread(host, mAgent, mHandler));
 		readThread.start();
@@ -260,6 +262,12 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	}
 
 	private void gameOverWinner(Boolean isWinner) {
+		// Close Read & Face Thread
+		C.READ_THREAD = false;
+		C.FACE_THREAD = false;
+		readThread.interrupt();
+		faceThread.interrupt();
+		
 		Intent intent = new Intent();
 		intent.setClass(GameActivity.this, GameOverActivity.class);
 		intent.putExtra("WIN", isWinner);
@@ -378,7 +386,7 @@ public class GameActivity extends Activity implements SurfaceHolder.Callback, Ca
 	}
 
 	private void faceDetection() {
-		while (true) {
+		while (C.FACE_THREAD) {
 
 			if (!doingBoolean && frameData != null) {
 				doingBoolean = true;

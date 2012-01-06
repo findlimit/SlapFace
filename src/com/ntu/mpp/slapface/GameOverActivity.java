@@ -42,16 +42,16 @@ public class GameOverActivity extends Activity {
 	}
 
 	private void findViews() {
-		restart = (Button) findViewById(R.id.restart);
+		restart = (Button) findViewById(R.id.btnOverAgain);
 		restart.setOnClickListener(new Button.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				// Intent intent = new Intent();
-				// intent.putExtra("host", GameOverActivity.this.getIntent().getBooleanExtra("host", false));
-				// intent.setClass(GameOverActivity.this, GameActivity.class);
-				// startActivity(intent);
-				// finish();
+//				 Intent intent = new Intent();
+//				 intent.putExtra("host", GameOverActivity.this.getIntent().getBooleanExtra("host", false));
+//				 intent.setClass(GameOverActivity.this, GameActivity.class);
+//				 startActivity(intent);
+//				 finish();
 			}
 		});
 

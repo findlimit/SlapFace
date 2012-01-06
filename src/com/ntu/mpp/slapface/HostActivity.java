@@ -343,7 +343,7 @@ public class HostActivity extends Activity {
 		@Override
 		public void onClick(View v) {
 			mServerAgent.writeAll("start");
-			tvMsg.setText("start");
+			//tvMsg.setText("start");
 			Intent intent = new Intent(HostActivity.this, GameActivity.class);
 			intent.putExtra("host", true);
 			startActivity(intent);

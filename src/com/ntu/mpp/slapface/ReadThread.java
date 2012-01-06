@@ -12,7 +12,7 @@ public class ReadThread implements Runnable {
 	private String tmp;
 	private String[] tmpPart;
 	private SocketAgent mAgent;
-	private Boolean flagReadThread = true;
+//	private Boolean flagReadThread = true;
 	private Handler mHandler;
 	private Boolean mBoolHost;
 
@@ -24,7 +24,7 @@ public class ReadThread implements Runnable {
 
 	@Override
 	public void run() {
-		while (flagReadThread) {
+		while (C.READ_THREAD) {
 			try {
 
 				tmp = mAgent.read();
@@ -48,7 +48,7 @@ public class ReadThread implements Runnable {
 					}
 
 				} else {
-					flagReadThread = false;
+					C.READ_THREAD = false;
 				}
 
 			} catch (IOException e1) {

@@ -23,4 +23,6 @@ public class C {
 	
 	// Thread run flag
 	protected static Boolean SOCKET_LISTENER = true;
+	protected static Boolean READ_THREAD = true;
+	protected static Boolean FACE_THREAD = true;
 }

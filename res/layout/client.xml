@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" android:background="">
+    android:orientation="vertical" android:background="@drawable/sf_host_wait_bg">
 
     <TextView
         android:id="@+id/tvClientMsg"
@@ -10,7 +10,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="@string/client_apbssid" />
+        android:text="@string/client_apbssid"
+        android:textColor="#000000"
+        android:textSize="15dp" />
 
     <TextView
         android:id="@+id/tvClientSSID"
@@ -18,17 +20,18 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvClientMsg"
         android:layout_centerHorizontal="true"
-        android:text=""
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textColor="#FF0000"
+        android:textSize="30dp"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/btnClientConnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/tvClientSSID"
-        android:layout_marginTop="30dp"
-        android:text="Ready" />
+        android:background="@null"
+        android:src="@drawable/client_button_ready"
+        android:layout_marginTop="30dp" />
 
     <!-- <Button
         android:id="@+id/btnClientOther"
@@ -45,6 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:cacheColorHint="#00000000"
         android:layout_below="@+id/btnClientConnect" >
     </ListView>
 

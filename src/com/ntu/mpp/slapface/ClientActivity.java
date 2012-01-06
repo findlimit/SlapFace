@@ -38,6 +38,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -112,7 +113,7 @@ public class ClientActivity extends Activity {
 	private WifiManager mWifiManager;
 	private List<ScanResult> mScanResults;
 	private ListView lvWifi;
-	private Button btnClientConnect;
+	private ImageButton btnClientConnect;
 	private ProgressDialog dia_join;
 	private TextView tvClientMsg;
 	private TextView tvClientSSID;
@@ -135,7 +136,7 @@ public class ClientActivity extends Activity {
 		lvWifi.setOnItemClickListener(mItemOnClick);
 		tvClientMsg = (TextView) findViewById(R.id.tvClientMsg);
 		tvClientSSID = (TextView) findViewById(R.id.tvClientSSID);
-		btnClientConnect = (Button) findViewById(R.id.btnClientConnect);
+		btnClientConnect = (ImageButton) findViewById(R.id.btnClientConnect);
 		// btnClientConnect.setClickable(false);
 		// btnClientConnect.setTextColor(Color.GRAY);
 		// btnClientOther = (Button) findViewById(R.id.btnClientOther);
@@ -187,11 +188,7 @@ public class ClientActivity extends Activity {
 				if (newState.equals(SupplicantState.COMPLETED)) {
 					String strSSID = mWifiManager.getConnectionInfo().getSSID();
 //					Log.d("Peter", "strSSID: "+strSSID);
-					if (strSSID.equals(null)) {
-						tvClientSSID.setText(R.string.client_ssid_connecting);
-					} else {
-						tvClientSSID.setText(strSSID);
-					}
+					tvClientSSID.setText(strSSID);
 				}
 			}
 			// else if (action.equals(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
@@ -212,18 +209,31 @@ public class ClientActivity extends Activity {
 			// }
 		}
 	};
+	
+	private class ViewHolder {
+		public TextView text1;
+		public TextView text2;
+	}
+	
+	public ViewHolder holder;
 
 	private BaseAdapter mListAdapter = new BaseAdapter() {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			if (convertView == null || !(convertView instanceof TwoLineListItem)) {
-				convertView = View.inflate(getApplicationContext(), android.R.layout.simple_list_item_2, null);
+			if (convertView == null) {
+				convertView = View.inflate(getApplicationContext(), R.layout.client_wifi_list, null);
+				holder = new ViewHolder();
+				holder.text1 = (TextView) convertView.findViewById(R.id.tvWifiText1);
+				holder.text2 = (TextView) convertView.findViewById(R.id.tvWifiText2);
+				convertView.setTag(holder);
+			} else {
+				holder = (ViewHolder) convertView.getTag();
 			}
 
 			final ScanResult result = mScanResults.get(position);
-			((TwoLineListItem) convertView).getText1().setText(result.SSID);
-			((TwoLineListItem) convertView).getText2().setText(String.format("%s  %d", result.BSSID, result.level));
+			holder.text1.setText(result.SSID);
+			holder.text2.setText(String.format("%s  %d", result.BSSID, result.level));
 			return convertView;
 		}
 
